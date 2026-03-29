@@ -11,6 +11,7 @@ from act0r.runner import AgentRunner
 from act0r.scenarios import load_scenario, load_scenarios_from_directory
 from act0r.storage import SQLiteStorage
 from act0r.tools import create_default_tool_registry
+from act0r.ui_backend import UiServerConfig, run_ui_server
 
 
 class DeterministicCliAdapter(AgentAdapter):
@@ -58,6 +59,13 @@ def build_parser() -> argparse.ArgumentParser:
     report_parser.add_argument("--db", default="data/act0r.sqlite", help="SQLite database path")
     report_parser.add_argument("--output-dir", default="reports", help="Report output directory")
 
+    ui_parser = subparsers.add_parser("ui", help="Start local UI server")
+    ui_parser.add_argument("--host", default="127.0.0.1", help="Bind host")
+    ui_parser.add_argument("--port", type=int, default=8080, help="Bind port")
+    ui_parser.add_argument("--db", default="data/act0r.sqlite", help="SQLite database path")
+    ui_parser.add_argument("--scenario-dir", default="scenarios/mvp", help="Scenario directory")
+    ui_parser.add_argument("--report-dir", default="reports", help="Report output directory")
+
     return parser
 
 
@@ -74,6 +82,8 @@ def main(argv=None) -> int:
             return _cmd_run_all(args)
         if args.command == "report":
             return _cmd_report(args)
+        if args.command == "ui":
+            return _cmd_ui(args)
     except Exception as exc:
         print("error: {}".format(exc), file=sys.stderr)
         return 1
@@ -171,6 +181,20 @@ def _cmd_report(args) -> int:
         storage.close()
 
     print("report={}".format(report_path))
+    return 0
+
+
+def _cmd_ui(args) -> int:
+    repo_root = Path(__file__).resolve().parents[2]
+    config = UiServerConfig(
+        host=args.host,
+        port=args.port,
+        db_path=Path(args.db),
+        scenario_dir=Path(args.scenario_dir),
+        report_dir=Path(args.report_dir),
+        ui_dir=repo_root / "ui",
+    )
+    run_ui_server(config)
     return 0
 
 

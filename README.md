@@ -45,7 +45,7 @@ python3 -m pytest
 - Markdown run reporting is implemented in `act0r.reporting`.
 - SQLite persistence is implemented in `act0r.storage`.
 - Operator CLI is implemented in `act0r.cli`.
-- UI foundation shell is in `ui/`.
+- UI operational app + local API server are in `ui/` and `act0r.ui_backend`.
 - Scenario format docs are in `docs/scenarios/schema.md`.
 - Tool layer docs are in `docs/tools.md`.
 - Trace docs are in `docs/trace.md`.
@@ -56,6 +56,6 @@ python3 -m pytest
 - Reporting docs are in `docs/reporting.md`.
 - Storage docs are in `docs/storage.md`.
 - CLI docs are in `docs/cli.md`.
-- UI foundation notes are in `ui/README.md`.
+- UI run instructions are in `ui/README.md`.
 
 The MVP remains intentionally narrow: fake or sandboxed behaviors only, deterministic checks first, and a UI style aligned with `prompt0r`.

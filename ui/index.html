@@ -28,132 +28,108 @@
             <p id="view-subtitle">Configure and choose execution backends</p>
           </div>
           <div class="topbar-actions">
-            <button class="btn btn-secondary">Filter</button>
-            <button class="btn btn-primary">Run</button>
+            <label class="inline-field">
+              Active target
+              <select id="target-select"></select>
+            </label>
+            <button class="btn btn-primary" id="refresh-btn">Refresh</button>
           </div>
         </header>
 
         <section class="panel view is-visible" id="view-targets">
-          <table class="data-table">
+          <table class="data-table" id="targets-table">
             <thead>
               <tr>
                 <th>Name</th>
                 <th>Type</th>
                 <th>Status</th>
-                <th>Last Checked</th>
-                <th>Actions</th>
+                <th>Description</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>local-mock</td>
-                <td>deterministic</td>
-                <td><span class="badge badge-neutral">ready</span></td>
-                <td>2026-03-29 22:10</td>
-                <td><button class="btn btn-ghost">View</button></td>
-              </tr>
-              <tr>
-                <td>ollama-local</td>
-                <td>adapter</td>
-                <td><span class="badge badge-warning">not connected</span></td>
-                <td>never</td>
-                <td><button class="btn btn-ghost">Configure</button></td>
-              </tr>
-            </tbody>
+            <tbody></tbody>
           </table>
         </section>
 
         <section class="panel view" id="view-scenarios">
-          <table class="data-table">
+          <div class="panel-header">
+            <button class="btn btn-secondary" id="run-selected-scenario-btn">Run Selected Scenario</button>
+          </div>
+          <table class="data-table" id="scenarios-table">
             <thead>
               <tr>
+                <th>Use</th>
                 <th>ID</th>
                 <th>Title</th>
                 <th>Category</th>
-                <th>Focus</th>
-                <th>Risk</th>
+                <th>Risk Focus</th>
+                <th>Expected Behavior</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>SCN-001</td>
-                <td>Benign email summary</td>
-                <td>email</td>
-                <td>goal-alignment</td>
-                <td><span class="badge badge-neutral">low</span></td>
-              </tr>
-              <tr>
-                <td>SCN-005</td>
-                <td>Unauthorized export attempt</td>
-                <td>exfiltration</td>
-                <td>data-exfiltration-resistance</td>
-                <td><span class="badge badge-critical">high</span></td>
-              </tr>
-            </tbody>
+            <tbody></tbody>
           </table>
         </section>
 
         <section class="panel view" id="view-runs">
-          <table class="data-table">
+          <table class="data-table" id="runs-table">
             <thead>
               <tr>
                 <th>Status</th>
-                <th>Scenario</th>
                 <th>Target</th>
-                <th>Started</th>
+                <th>Scenario</th>
+                <th>Timestamp</th>
                 <th>Verdict</th>
+                <th>Analysis</th>
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td><span class="badge badge-running">running</span></td>
-                <td>SCN-003</td>
-                <td>local-mock</td>
-                <td>2026-03-29 22:11</td>
-                <td>pending</td>
-                <td><button class="btn btn-ghost">View</button></td>
-              </tr>
-              <tr>
-                <td><span class="badge badge-critical">stopped</span></td>
-                <td>SCN-005</td>
-                <td>local-mock</td>
-                <td>2026-03-29 22:04</td>
-                <td>CRITICAL_FAIL</td>
-                <td><button class="btn btn-ghost">Analyze</button></td>
-              </tr>
-            </tbody>
+            <tbody></tbody>
           </table>
+
+          <div class="detail-grid" id="run-detail-panel">
+            <article class="detail-card">
+              <h3>Scenario Summary</h3>
+              <div id="detail-scenario"></div>
+            </article>
+            <article class="detail-card">
+              <h3>Final Verdict</h3>
+              <div id="detail-verdict"></div>
+            </article>
+            <article class="detail-card detail-card-wide">
+              <h3>Tool Calls</h3>
+              <table class="data-table compact" id="detail-tools-table">
+                <thead><tr><th>Step</th><th>Tool</th><th>Arguments</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </article>
+            <article class="detail-card detail-card-wide">
+              <h3>Violations</h3>
+              <table class="data-table compact" id="detail-violations-table">
+                <thead><tr><th>Rule</th><th>Severity</th><th>Action</th><th>Message</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </article>
+            <article class="detail-card detail-card-wide">
+              <h3>Event Trace</h3>
+              <table class="data-table compact" id="detail-trace-table">
+                <thead><tr><th>Step</th><th>Timestamp</th><th>Event</th><th>Payload</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </article>
+          </div>
         </section>
 
         <section class="panel view" id="view-reports">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Run ID</th>
-                <th>Verdict</th>
-                <th>Score</th>
-                <th>Generated</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>cli-scn-005-a12b3c</td>
-                <td><span class="badge badge-critical">CRITICAL_FAIL</span></td>
-                <td>54</td>
-                <td>2026-03-29 22:05</td>
-                <td><button class="btn btn-ghost">Open Report</button></td>
-              </tr>
-              <tr>
-                <td>cli-scn-001-0fd2aa</td>
-                <td><span class="badge badge-success">PASS</span></td>
-                <td>100</td>
-                <td>2026-03-29 21:58</td>
-                <td><button class="btn btn-ghost">Download</button></td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="panel-header">
+            <label class="inline-field">
+              Run ID
+              <select id="report-run-select"></select>
+            </label>
+            <button class="btn btn-secondary" id="load-report-btn">Open Report</button>
+            <a class="btn btn-ghost" id="download-report-link" href="#" download>Download Report</a>
+          </div>
+          <article class="markdown" id="report-content">
+            <p class="muted">Select a run and click Open Report.</p>
+          </article>
         </section>
       </main>
     </div>

@@ -1,21 +1,22 @@
-# act0r UI Foundation
+# act0r UI
 
-This is the Phase 10 static UI shell for `act0r`.
+Phase 11 UI uses a local HTTP server with JSON APIs and static frontend assets.
 
-## Open locally
+## Start
 
 From repository root:
 
 ```bash
-python3 -m http.server 9000
+act0r ui --host 127.0.0.1 --port 8080
 ```
 
-Then open `http://127.0.0.1:9000/ui/`.
+Then open:
 
-## Included foundation
+- `http://127.0.0.1:8080/`
 
-- dark operator-style layout
-- stable left sidebar navigation
-- top-level views for targets/scenarios/runs/reports
-- compact tables and practical action buttons
-- responsive behavior for desktop/mobile
+## Operational views
+
+- Targets: list/select execution targets
+- Scenarios: list attack scenarios and run selected scenario
+- Runs: inspect history, status/verdict, trace, tool calls, violations
+- Reports / Analysis: render Markdown report and download export

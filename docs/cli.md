@@ -6,6 +6,7 @@
 - `act0r run`
 - `act0r run-all`
 - `act0r report`
+- `act0r ui`
 
 ## Notes
 

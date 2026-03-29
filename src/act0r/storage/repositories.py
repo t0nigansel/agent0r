@@ -103,6 +103,25 @@ class RunRepository:
         ).fetchone()
         return dict(row) if row else None
 
+    def list_summaries(self) -> List[Dict]:
+        rows = self.connection.execute(
+            """
+            SELECT
+                runs.run_id,
+                runs.scenario_id,
+                scenarios.title AS scenario_title,
+                runs.status,
+                runs.steps_executed,
+                runs.verdict,
+                runs.overall_score,
+                runs.created_at
+            FROM runs
+            LEFT JOIN scenarios ON scenarios.id = runs.scenario_id
+            ORDER BY runs.created_at DESC
+            """
+        ).fetchall()
+        return [dict(row) for row in rows]
+
 
 class EventRepository:
     def __init__(self, connection: sqlite3.Connection) -> None:

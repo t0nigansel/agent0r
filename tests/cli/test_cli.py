@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from act0r.cli import main
+from act0r.cli import build_parser, main
 
 
 
@@ -104,3 +104,14 @@ def test_cli_run_all(tmp_path: Path, capsys) -> None:
 
     assert exit_code == 0
     assert "completed_runs=6" in captured.out
+
+
+def test_cli_parser_supports_ui_command() -> None:
+    parser = build_parser()
+    args = parser.parse_args(
+        ["ui", "--host", "127.0.0.1", "--port", "8090", "--db", "tmp.sqlite"]
+    )
+
+    assert args.command == "ui"
+    assert args.host == "127.0.0.1"
+    assert args.port == 8090

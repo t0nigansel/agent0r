@@ -381,31 +381,31 @@ The MVP is complete when all of the following are true:
 ## Phase 11 — UI: Operational Views
 
 ### Runs view
-- [ ] Add run history table.
-- [ ] Show status, target, scenario, timestamps, verdict, analysis state.
-- [ ] Add actions like view / analyze / download report.
+- [x] Add run history table.
+- [x] Show status, target, scenario, timestamps, verdict, analysis state.
+- [x] Add actions like view / analyze / download report.
 
 ### Run detail view
-- [ ] Show scenario summary.
-- [ ] Show chronological event trace.
-- [ ] Show tool calls.
-- [ ] Show violations.
-- [ ] Show final verdict.
+- [x] Show scenario summary.
+- [x] Show chronological event trace.
+- [x] Show tool calls.
+- [x] Show violations.
+- [x] Show final verdict.
 
 ### Scenario view
-- [ ] List scenarios.
-- [ ] Show category, risk focus, expected behavior.
+- [x] List scenarios.
+- [x] Show category, risk focus, expected behavior.
 
 ### Target view
-- [ ] List configured targets.
-- [ ] Allow selection for run execution.
+- [x] List configured targets.
+- [x] Allow selection for run execution.
 
 ### Report view
-- [ ] Render Markdown report readably.
-- [ ] Support download/export of generated report.
+- [x] Render Markdown report readably.
+- [x] Support download/export of generated report.
 
 ### Exit criteria
-- [ ] The UI supports the full MVP inspection workflow.
+- [x] The UI supports the full MVP inspection workflow.
 
 
 ---
