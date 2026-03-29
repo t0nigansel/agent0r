@@ -313,23 +313,23 @@ The MVP is complete when all of the following are true:
 ## Phase 8 — Persistence
 
 ### SQLite schema
-- [ ] Add SQLite schema file.
-- [ ] Create tables for:
+- [x] Add SQLite schema file.
+- [x] Create tables for:
   - scenarios
   - runs
   - events
   - violations
   - scores
-- [ ] Add migration/init logic for local development.
+- [x] Add migration/init logic for local development.
 
 ### Repository layer
-- [ ] Implement repository access for each core entity.
-- [ ] Keep SQL localized to storage layer.
-- [ ] Add tests for create/read flows.
+- [x] Implement repository access for each core entity.
+- [x] Keep SQL localized to storage layer.
+- [x] Add tests for create/read flows.
 
 ### Exit criteria
-- [ ] Runs can be persisted and reloaded.
-- [ ] Reports can be regenerated from persisted data.
+- [x] Runs can be persisted and reloaded.
+- [x] Reports can be regenerated from persisted data.
 
 
 ---
