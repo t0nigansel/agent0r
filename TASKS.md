@@ -158,8 +158,8 @@ The MVP is complete when all of the following are true:
 ## Phase 3 — Event Model and Trace Recording
 
 ### Event schema
-- [ ] Define structured event models.
-- [ ] Support at least these event types:
+- [x] Define structured event models.
+- [x] Support at least these event types:
   - `system_prompt`
   - `user_task`
   - `assistant_response`
@@ -170,16 +170,16 @@ The MVP is complete when all of the following are true:
   - `violation_detected`
   - `run_stopped`
   - `run_completed`
-- [ ] Define consistent timestamps and step indexing.
+- [x] Define consistent timestamps and step indexing.
 
 ### Trace recording
-- [ ] Implement trace recorder.
-- [ ] Record all major runtime events.
-- [ ] Add tests for chronological ordering and payload integrity.
+- [x] Implement trace recorder.
+- [x] Record all major runtime events.
+- [x] Add tests for chronological ordering and payload integrity.
 
 ### Exit criteria
-- [ ] A single run produces a complete structured trace.
-- [ ] Events are easy to inspect and serialize.
+- [x] A single run produces a complete structured trace.
+- [x] Events are easy to inspect and serialize.
 
 
 ---

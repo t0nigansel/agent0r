@@ -37,7 +37,9 @@ python3 -m pytest
 - Local scenario fixtures live in `scenarios/fixtures`.
 - Scenario schema/loading is implemented in `act0r.scenarios`.
 - Tool abstraction and fake tools are implemented in `act0r.tools`.
+- Trace events and recorder are implemented in `act0r.trace`.
 - Scenario format docs are in `docs/scenarios/schema.md`.
 - Tool layer docs are in `docs/tools.md`.
+- Trace docs are in `docs/trace.md`.
 
 The MVP remains intentionally narrow: fake or sandboxed behaviors only, deterministic checks first, and a UI style aligned with `prompt0r`.
