@@ -5,6 +5,7 @@ from uuid import uuid4
 from typing import Optional
 
 from act0r.adapters import AdapterMessage, AdapterRequest, AgentAdapter
+from act0r.evaluation import DeterministicEvaluator
 from act0r.policy import PolicyEngine, PolicyEvaluation, PolicyOutcome
 from act0r.scenarios.models import LoadedScenario
 from act0r.tools import (
@@ -25,6 +26,7 @@ class AgentRunner:
         *,
         adapter: AgentAdapter,
         tool_registry: ToolRegistry,
+        evaluator: Optional[DeterministicEvaluator] = None,
         max_steps: int = 8,
     ) -> None:
         if max_steps <= 0:
@@ -32,6 +34,7 @@ class AgentRunner:
 
         self.adapter = adapter
         self.tool_registry = tool_registry
+        self.evaluator = evaluator or DeterministicEvaluator()
         self.max_steps = max_steps
 
     def run(
@@ -62,6 +65,18 @@ class AgentRunner:
 
         final_text = None
 
+        def build_result(status: RunStatus, steps_executed: int) -> RunResult:
+            trace = recorder.to_trace()
+            return RunResult(
+                run_id=active_run_id,
+                scenario_id=scenario.id,
+                status=status,
+                steps_executed=steps_executed,
+                trace=trace,
+                evaluation=self.evaluator.evaluate(trace),
+                final_response=final_text,
+            )
+
         for step in range(self.max_steps):
             request = AdapterRequest(
                 messages=messages,
@@ -79,14 +94,7 @@ class AgentRunner:
                         "error": str(exc),
                     },
                 )
-                return RunResult(
-                    run_id=active_run_id,
-                    scenario_id=scenario.id,
-                    status=RunStatus.STOPPED_ADAPTER_ERROR,
-                    steps_executed=step,
-                    trace=recorder.to_trace(),
-                    final_response=final_text,
-                )
+                return build_result(RunStatus.STOPPED_ADAPTER_ERROR, step)
 
             assistant_event = recorder.record(
                 EventType.ASSISTANT_RESPONSE,
@@ -118,14 +126,7 @@ class AgentRunner:
                         "outcome": assistant_blocking.outcome.value,
                     },
                 )
-                return RunResult(
-                    run_id=active_run_id,
-                    scenario_id=scenario.id,
-                    status=RunStatus.STOPPED_BLOCKED_CRITICAL_ACTION,
-                    steps_executed=step + 1,
-                    trace=recorder.to_trace(),
-                    final_response=final_text,
-                )
+                return build_result(RunStatus.STOPPED_BLOCKED_CRITICAL_ACTION, step + 1)
 
             for call in response.tool_calls:
                 tool_request_event = recorder.record(
@@ -146,14 +147,7 @@ class AgentRunner:
                             "error": str(exc),
                         },
                     )
-                    return RunResult(
-                        run_id=active_run_id,
-                        scenario_id=scenario.id,
-                        status=RunStatus.STOPPED_ADAPTER_ERROR,
-                        steps_executed=step + 1,
-                        trace=recorder.to_trace(),
-                        final_response=final_text,
-                    )
+                    return build_result(RunStatus.STOPPED_ADAPTER_ERROR, step + 1)
 
                 pre_tool_policy = policy_engine.evaluate_before_tool(
                     tool_spec=tool.spec,
@@ -171,14 +165,7 @@ class AgentRunner:
                             "tool_name": call.name,
                         },
                     )
-                    return RunResult(
-                        run_id=active_run_id,
-                        scenario_id=scenario.id,
-                        status=RunStatus.STOPPED_BLOCKED_CRITICAL_ACTION,
-                        steps_executed=step + 1,
-                        trace=recorder.to_trace(),
-                        final_response=final_text,
-                    )
+                    return build_result(RunStatus.STOPPED_BLOCKED_CRITICAL_ACTION, step + 1)
 
                 recorder.record(
                     EventType.TOOL_CALL_EXECUTED,
@@ -212,41 +199,20 @@ class AgentRunner:
                             "tool_name": result.tool_name,
                         },
                     )
-                    return RunResult(
-                        run_id=active_run_id,
-                        scenario_id=scenario.id,
-                        status=RunStatus.STOPPED_BLOCKED_CRITICAL_ACTION,
-                        steps_executed=step + 1,
-                        trace=recorder.to_trace(),
-                        final_response=final_text,
-                    )
+                    return build_result(RunStatus.STOPPED_BLOCKED_CRITICAL_ACTION, step + 1)
 
             if response.is_final:
                 recorder.record(
                     EventType.RUN_COMPLETED,
                     {"reason": "adapter_signaled_completion"},
                 )
-                return RunResult(
-                    run_id=active_run_id,
-                    scenario_id=scenario.id,
-                    status=RunStatus.COMPLETED,
-                    steps_executed=step + 1,
-                    trace=recorder.to_trace(),
-                    final_response=final_text,
-                )
+                return build_result(RunStatus.COMPLETED, step + 1)
 
         recorder.record(
             EventType.RUN_STOPPED,
             {"reason": "max_steps_exceeded", "max_steps": self.max_steps},
         )
-        return RunResult(
-            run_id=active_run_id,
-            scenario_id=scenario.id,
-            status=RunStatus.STOPPED_MAX_STEPS,
-            steps_executed=self.max_steps,
-            trace=recorder.to_trace(),
-            final_response=final_text,
-        )
+        return build_result(RunStatus.STOPPED_MAX_STEPS, self.max_steps)
 
 
 def _serialize_tool_output(output: object) -> str:

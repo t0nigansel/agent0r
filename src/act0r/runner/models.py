@@ -5,6 +5,7 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from act0r.evaluation import RunEvaluation
 from act0r.trace.models import RunTrace
 
 
@@ -23,4 +24,5 @@ class RunResult(BaseModel):
     status: RunStatus
     steps_executed: int = Field(ge=0)
     trace: RunTrace
+    evaluation: Optional[RunEvaluation] = None
     final_response: Optional[str] = None
