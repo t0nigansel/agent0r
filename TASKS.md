@@ -337,19 +337,19 @@ The MVP is complete when all of the following are true:
 ## Phase 9 — CLI
 
 ### Core commands
-- [ ] Implement `run`.
-- [ ] Implement `run-all`.
-- [ ] Implement `report`.
-- [ ] Implement `list-scenarios`.
+- [x] Implement `run`.
+- [x] Implement `run-all`.
+- [x] Implement `report`.
+- [x] Implement `list-scenarios`.
 
 ### CLI quality
-- [ ] Add readable help output.
-- [ ] Return sensible exit codes.
-- [ ] Print concise operator-friendly summaries.
-- [ ] Add CLI tests where practical.
+- [x] Add readable help output.
+- [x] Return sensible exit codes.
+- [x] Print concise operator-friendly summaries.
+- [x] Add CLI tests where practical.
 
 ### Exit criteria
-- [ ] A user can run MVP flows without the UI.
+- [x] A user can run MVP flows without the UI.
 
 
 ---
