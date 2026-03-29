@@ -453,9 +453,9 @@ These are valid future directions, but not part of the MVP unless explicitly pro
 - [x] Cross-agent policy context checks.
 
 ### Broader attack surfaces
-- [ ] OCR / image text injection scenarios.
-- [ ] HTML metadata and hidden DOM injection scenarios.
-- [ ] Browser-agent workflow tests.
+- [x] OCR / image text injection scenarios.
+- [x] HTML metadata and hidden DOM injection scenarios.
+- [x] Browser-agent workflow tests.
 
 ### Richer analysis
 - [ ] Run comparison view.
