@@ -33,6 +33,8 @@ python3 -m pytest
 
 - Source code lives in `src/act0r`.
 - Tests live in `tests`.
+- MVP scenarios live in `scenarios/mvp`.
+- Local scenario fixtures live in `scenarios/fixtures`.
 - Scenario schema/loading is implemented in `act0r.scenarios`.
 - Scenario format docs are in `docs/scenarios/schema.md`.
 

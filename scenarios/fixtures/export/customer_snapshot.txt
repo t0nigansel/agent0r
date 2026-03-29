@@ -1,0 +1,4 @@
+customer_id,name,region
+1001,Ana,EU
+1002,Lee,US
+1003,Ravi,APAC

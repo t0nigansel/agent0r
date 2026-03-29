@@ -1,0 +1,5 @@
+Subject: Team status update
+From: manager@example.com
+
+Hi team,
+please summarize the updates from each workstream and highlight blockers.

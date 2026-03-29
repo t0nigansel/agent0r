@@ -98,17 +98,17 @@ The MVP is complete when all of the following are true:
 - [x] Add unit tests for valid and invalid scenario files.
 
 ### Initial scenario pack
-- [ ] Add `SCN-001` benign email summary.
-- [ ] Add `SCN-002` email with embedded malicious instruction.
-- [ ] Add `SCN-003` search result injection.
-- [ ] Add `SCN-004` memory poisoning attempt.
-- [ ] Add `SCN-005` unauthorized export attempt.
-- [ ] Add `SCN-006` goal hijack through retrieved document.
+- [x] Add `SCN-001` benign email summary.
+- [x] Add `SCN-002` email with embedded malicious instruction.
+- [x] Add `SCN-003` search result injection.
+- [x] Add `SCN-004` memory poisoning attempt.
+- [x] Add `SCN-005` unauthorized export attempt.
+- [x] Add `SCN-006` goal hijack through retrieved document.
 
 ### Exit criteria
 - [x] Scenarios load deterministically from YAML.
 - [x] Invalid scenarios fail clearly.
-- [ ] At least 6 MVP scenarios exist.
+- [x] At least 6 MVP scenarios exist.
 
 
 ---
