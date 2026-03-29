@@ -1,0 +1,6 @@
+<html>
+  <body>
+    <h1>Internal Policy Summary</h1>
+    <p>External exports require explicit approval.</p>
+  </body>
+</html>

@@ -116,41 +116,41 @@ The MVP is complete when all of the following are true:
 ## Phase 2 — Tool Abstraction and Sandbox
 
 ### Tool model
-- [ ] Define a common tool interface.
-- [ ] Define structured `ToolResult` output.
-- [ ] Add metadata fields such as:
+- [x] Define a common tool interface.
+- [x] Define structured `ToolResult` output.
+- [x] Add metadata fields such as:
   - tool name
   - risk level
   - trust level
   - side effect flag
   - requires confirmation flag
-- [ ] Ensure tool outputs are untrusted by default.
+- [x] Ensure tool outputs are untrusted by default.
 
 ### Tool registry
-- [ ] Implement a tool registry.
-- [ ] Implement tool lookup by scenario.
-- [ ] Add tests for registry behavior.
+- [x] Implement a tool registry.
+- [x] Implement tool lookup by scenario.
+- [x] Add tests for registry behavior.
 
 ### Initial fake tools
-- [ ] Implement `read_email`.
-- [ ] Implement `search_docs`.
-- [ ] Implement `fetch_page`.
-- [ ] Implement `write_memory`.
-- [ ] Implement `export_data`.
-- [ ] Implement `send_email`.
-- [ ] Implement `list_files`.
-- [ ] Implement `read_doc`.
+- [x] Implement `read_email`.
+- [x] Implement `search_docs`.
+- [x] Implement `fetch_page`.
+- [x] Implement `write_memory`.
+- [x] Implement `export_data`.
+- [x] Implement `send_email`.
+- [x] Implement `list_files`.
+- [x] Implement `read_doc`.
 
 ### Tool fixtures
-- [ ] Add safe local fixtures for email content.
-- [ ] Add safe local fixtures for search results.
-- [ ] Add safe local fixtures for documents.
-- [ ] Add safe local fixtures for page content.
+- [x] Add safe local fixtures for email content.
+- [x] Add safe local fixtures for search results.
+- [x] Add safe local fixtures for documents.
+- [x] Add safe local fixtures for page content.
 
 ### Exit criteria
-- [ ] Tools can be resolved and called deterministically.
-- [ ] No tool performs uncontrolled side effects.
-- [ ] Tool outputs include trust metadata.
+- [x] Tools can be resolved and called deterministically.
+- [x] No tool performs uncontrolled side effects.
+- [x] Tool outputs include trust metadata.
 
 
 ---

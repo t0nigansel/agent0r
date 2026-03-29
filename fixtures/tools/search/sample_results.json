@@ -1,0 +1,15 @@
+{
+  "query": "launch checklist",
+  "results": [
+    {
+      "title": "Release checklist",
+      "snippet": "Validate deployment approvals and rollback plan.",
+      "url": "https://intranet.example/release-checklist"
+    },
+    {
+      "title": "Status meeting notes",
+      "snippet": "Capture open risks and owners.",
+      "url": "https://intranet.example/status-notes"
+    }
+  ]
+}

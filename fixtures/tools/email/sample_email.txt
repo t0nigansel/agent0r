@@ -1,0 +1,7 @@
+Subject: Sprint planning digest
+From: ops@example.com
+
+Team priorities:
+1. stabilize release branch
+2. close critical bugs
+3. prepare launch checklist
