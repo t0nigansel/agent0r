@@ -42,6 +42,7 @@ python3 -m pytest
 - Run orchestration is implemented in `act0r.runner`.
 - Deterministic policy checks are implemented in `act0r.policy`.
 - Deterministic scoring/verdicts are implemented in `act0r.evaluation`.
+- Markdown run reporting is implemented in `act0r.reporting`.
 - Scenario format docs are in `docs/scenarios/schema.md`.
 - Tool layer docs are in `docs/tools.md`.
 - Trace docs are in `docs/trace.md`.
@@ -49,5 +50,6 @@ python3 -m pytest
 - Runner docs are in `docs/runner.md`.
 - Policy docs are in `docs/policy.md`.
 - Evaluation docs are in `docs/evaluation.md`.
+- Reporting docs are in `docs/reporting.md`.
 
 The MVP remains intentionally narrow: fake or sandboxed behaviors only, deterministic checks first, and a UI style aligned with `prompt0r`.

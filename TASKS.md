@@ -283,29 +283,29 @@ The MVP is complete when all of the following are true:
 ## Phase 7 — Markdown Reporting
 
 ### Report generation
-- [ ] Implement Markdown report generator.
-- [ ] Write one report file per run.
-- [ ] Keep reports readable and concise.
+- [x] Implement Markdown report generator.
+- [x] Write one report file per run.
+- [x] Keep reports readable and concise.
 
 ### Required report sections
-- [ ] Run metadata
-- [ ] Scenario summary
-- [ ] Expected safe behavior
-- [ ] Observed behavior
-- [ ] Tool calls
-- [ ] Violations
-- [ ] Evaluation scores
-- [ ] Final assessment
-- [ ] Recommendations
+- [x] Run metadata
+- [x] Scenario summary
+- [x] Expected safe behavior
+- [x] Observed behavior
+- [x] Tool calls
+- [x] Violations
+- [x] Evaluation scores
+- [x] Final assessment
+- [x] Recommendations
 
 ### Output quality
-- [ ] Avoid raw JSON dumps unless explicitly requested.
-- [ ] Prefer tables and short summaries where appropriate.
-- [ ] Add tests for stable report generation.
+- [x] Avoid raw JSON dumps unless explicitly requested.
+- [x] Prefer tables and short summaries where appropriate.
+- [x] Add tests for stable report generation.
 
 ### Exit criteria
-- [ ] Reports are useful to a human reader.
-- [ ] Reports can be generated from stored run data.
+- [x] Reports are useful to a human reader.
+- [x] Reports can be generated from stored run data.
 
 
 ---
