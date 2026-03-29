@@ -105,3 +105,26 @@ def test_ui_data_service_differential_by_scenario(tmp_path: Path) -> None:
     assert model_labels == ["local-mock", "ollama-local"]
     assert differential["consensus_verdict"] == "PASS"
     assert differential["score_spread"] == 0.0
+
+
+def test_ui_data_service_trace_replay_navigation(tmp_path: Path) -> None:
+    service = UiDataService(
+        db_path=tmp_path / "act0r.sqlite",
+        scenario_dir=Path("scenarios/mvp"),
+        report_dir=tmp_path / "reports",
+    )
+
+    executed = service.run_execute(scenario_id="SCN-001", target="local-mock", max_steps=4)
+    run_id = executed["run_id"]
+
+    first = service.trace_replay(run_id, index=0)
+    assert first["index"] == 0
+    assert first["total_events"] > 0
+    assert first["current_event"] is not None
+
+    out_of_range = service.trace_replay(run_id, index=9999)
+    assert out_of_range["index"] == out_of_range["total_events"] - 1
+    assert out_of_range["next_index"] is None
+
+    negative = service.trace_replay(run_id, index=-10)
+    assert negative["index"] == 0

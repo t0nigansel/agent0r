@@ -334,6 +334,34 @@ class UiDataService:
             },
         }
 
+    def trace_replay(self, run_id: str, *, index: int = 0) -> Dict[str, Any]:
+        detail = self.run_detail(run_id)
+        trace = detail.get("trace", [])
+        total_events = len(trace)
+
+        if total_events == 0:
+            return {
+                "run_id": run_id,
+                "index": 0,
+                "total_events": 0,
+                "current_event": None,
+                "previous_index": None,
+                "next_index": None,
+            }
+
+        bounded_index = max(0, min(index, total_events - 1))
+        previous_index = bounded_index - 1 if bounded_index > 0 else None
+        next_index = bounded_index + 1 if bounded_index < total_events - 1 else None
+
+        return {
+            "run_id": run_id,
+            "index": bounded_index,
+            "total_events": total_events,
+            "current_event": trace[bounded_index],
+            "previous_index": previous_index,
+            "next_index": next_index,
+        }
+
     def run_execute(
         self,
         *,
@@ -470,6 +498,11 @@ def _build_handler(*, service: UiDataService, ui_dir: Path):
                     comparison = service.compare_runs(left_run_id, right_run_id)
                     return self._send_json(comparison)
                 if path.startswith("/api/runs/"):
+                    if path.endswith("/replay"):
+                        run_id = path.split("/")[-2]
+                        query = parse_qs(parsed.query)
+                        index = _parse_int(_query_value(query, "index"), default=0)
+                        return self._send_json(service.trace_replay(run_id, index=index))
                     run_id = path.split("/")[-1]
                     return self._send_json(service.run_detail(run_id))
                 if path.startswith("/api/reports/") and path.endswith("/download"):
@@ -570,3 +603,10 @@ def _maybe_number(value: Any) -> Optional[float]:
         return float(value)
     except (TypeError, ValueError):
         return None
+
+
+def _parse_int(value: str, *, default: int) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default

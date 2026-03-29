@@ -460,7 +460,7 @@ These are valid future directions, but not part of the MVP unless explicitly pro
 ### Richer analysis
 - [x] Run comparison view.
 - [x] Differential testing across models.
-- [ ] Replay / trace visualizer.
+- [x] Replay / trace visualizer.
 - [ ] Optional secondary LLM judge.
 
 ### Output formats

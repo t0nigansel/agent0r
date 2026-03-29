@@ -10,6 +10,7 @@ const state = {
   selectedScenarioId: null,
   selectedRunId: null,
   runs: [],
+  replay: null,
 };
 
 const views = {
@@ -37,6 +38,11 @@ const detailVerdict = document.getElementById("detail-verdict");
 const detailToolsBody = document.querySelector("#detail-tools-table tbody");
 const detailViolationsBody = document.querySelector("#detail-violations-table tbody");
 const detailTraceBody = document.querySelector("#detail-trace-table tbody");
+const replayPrevBtn = document.getElementById("replay-prev-btn");
+const replayNextBtn = document.getElementById("replay-next-btn");
+const replayPlayBtn = document.getElementById("replay-play-btn");
+const replayPosition = document.getElementById("replay-position");
+const replayCurrentEvent = document.getElementById("replay-current-event");
 
 const reportRunSelect = document.getElementById("report-run-select");
 const loadReportBtn = document.getElementById("load-report-btn");
@@ -55,6 +61,9 @@ runSelectedScenarioBtn.addEventListener("click", () => executeSelectedScenario()
 loadReportBtn.addEventListener("click", () => loadSelectedReport());
 compareRunsBtn.addEventListener("click", () => compareSelectedRuns());
 runDifferentialBtn.addEventListener("click", () => runDifferentialForScenario());
+replayPrevBtn.addEventListener("click", () => handleReplayPrev());
+replayNextBtn.addEventListener("click", () => handleReplayNext());
+replayPlayBtn.addEventListener("click", () => toggleReplayPlayback());
 
 navItems.forEach((item) => {
   item.addEventListener("click", () => selectView(item.dataset.view));
@@ -70,6 +79,8 @@ reportRunSelect.addEventListener("change", () => {
   const runId = reportRunSelect.value;
   downloadReportLink.href = runId ? `/api/reports/${runId}/download` : "#";
 });
+
+let replayTimer = null;
 
 async function refreshAll() {
   await Promise.all([refreshTargets(), refreshScenarios(), refreshRuns()]);
@@ -333,14 +344,24 @@ async function showRunDetail(runId) {
   if (!trace.length) {
     detailTraceBody.innerHTML = "<tr><td colspan='4' class='muted'>No trace events.</td></tr>";
   }
+
+  await loadReplay(runId, 0);
 }
 
 function clearRunDetail() {
+  stopReplayPlayback();
+  state.replay = null;
   detailScenario.innerHTML = "<p class='muted'>No run selected.</p>";
   detailVerdict.innerHTML = "<p class='muted'>No run selected.</p>";
   detailToolsBody.innerHTML = "<tr><td colspan='3' class='muted'>No tool calls.</td></tr>";
   detailViolationsBody.innerHTML = "<tr><td colspan='4' class='muted'>No violations.</td></tr>";
   detailTraceBody.innerHTML = "<tr><td colspan='4' class='muted'>No trace events.</td></tr>";
+  replayPosition.textContent = "event 0 / 0";
+  replayCurrentEvent.innerHTML = "<p class='muted'>Select a run to replay trace events.</p>";
+  replayPrevBtn.disabled = true;
+  replayNextBtn.disabled = true;
+  replayPlayBtn.disabled = true;
+  replayPlayBtn.textContent = "Play";
 }
 
 async function loadSelectedReport() {
@@ -496,6 +517,85 @@ function renderDifferential(data) {
       </tbody>
     </table>
   `;
+}
+
+async function loadReplay(runId, index) {
+  const replay = await getJson(`/api/runs/${encodeURIComponent(runId)}/replay?index=${index}`);
+  state.replay = replay;
+  renderReplay(replay);
+}
+
+function renderReplay(replay) {
+  const total = replay.total_events || 0;
+  const index = replay.index || 0;
+  replayPosition.textContent = `event ${total ? index + 1 : 0} / ${total}`;
+
+  if (!replay.current_event) {
+    replayCurrentEvent.innerHTML = "<p class='muted'>No trace events available.</p>";
+    replayPrevBtn.disabled = true;
+    replayNextBtn.disabled = true;
+    replayPlayBtn.disabled = true;
+    replayPlayBtn.textContent = "Play";
+    return;
+  }
+
+  const event = replay.current_event;
+  replayCurrentEvent.innerHTML = `
+    <p><strong>Step:</strong> ${escapeHtml(String(event.step_index))}</p>
+    <p><strong>Timestamp:</strong> ${escapeHtml(formatTimestamp(event.timestamp))}</p>
+    <p><strong>Event:</strong> ${escapeHtml(event.event_type || "")}</p>
+    <p><strong>Payload:</strong></p>
+    <pre class="code">${escapeHtml(JSON.stringify(event.payload || {}, null, 2))}</pre>
+  `;
+
+  replayPrevBtn.disabled = replay.previous_index == null;
+  replayNextBtn.disabled = replay.next_index == null;
+  replayPlayBtn.disabled = replay.next_index == null && replay.previous_index == null;
+}
+
+async function handleReplayPrev() {
+  if (!state.selectedRunId || !state.replay || state.replay.previous_index == null) {
+    return;
+  }
+  stopReplayPlayback();
+  await loadReplay(state.selectedRunId, state.replay.previous_index);
+}
+
+async function handleReplayNext() {
+  if (!state.selectedRunId || !state.replay || state.replay.next_index == null) {
+    return;
+  }
+  await loadReplay(state.selectedRunId, state.replay.next_index);
+}
+
+function toggleReplayPlayback() {
+  if (replayTimer) {
+    stopReplayPlayback();
+    return;
+  }
+
+  if (!state.selectedRunId || !state.replay || state.replay.next_index == null) {
+    return;
+  }
+
+  replayPlayBtn.textContent = "Pause";
+  replayTimer = setInterval(async () => {
+    if (!state.replay || state.replay.next_index == null) {
+      stopReplayPlayback();
+      return;
+    }
+    await loadReplay(state.selectedRunId, state.replay.next_index);
+  }, 800);
+}
+
+function stopReplayPlayback() {
+  if (!replayTimer) {
+    replayPlayBtn.textContent = "Play";
+    return;
+  }
+  clearInterval(replayTimer);
+  replayTimer = null;
+  replayPlayBtn.textContent = "Play";
 }
 
 function statusBadge(value) {
