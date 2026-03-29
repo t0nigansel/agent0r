@@ -117,7 +117,7 @@ class RunRepository:
                 runs.created_at
             FROM runs
             LEFT JOIN scenarios ON scenarios.id = runs.scenario_id
-            ORDER BY runs.created_at DESC
+            ORDER BY runs.created_at DESC, runs.run_id DESC
             """
         ).fetchall()
         return [dict(row) for row in rows]

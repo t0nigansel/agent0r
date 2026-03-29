@@ -85,7 +85,10 @@ def main(argv=None) -> int:
         if args.command == "ui":
             return _cmd_ui(args)
     except Exception as exc:
-        print("error: {}".format(exc), file=sys.stderr)
+        print(
+            "error: command={} details={}".format(args.command, exc),
+            file=sys.stderr,
+        )
         return 1
 
     return 1

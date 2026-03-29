@@ -54,6 +54,7 @@ def test_runner_completes_and_records_tool_events() -> None:
 
     assert result.status == RunStatus.COMPLETED
     assert result.evaluation is not None
+    assert result.stop_reason == "adapter_signaled_completion"
     assert EventType.POLICY_DECISION in event_types
     assert EventType.TOOL_CALL_REQUESTED in event_types
     assert EventType.TOOL_CALL_EXECUTED in event_types
@@ -80,6 +81,7 @@ def test_runner_stops_on_blocked_high_risk_tool_action() -> None:
 
     assert result.status == RunStatus.STOPPED_BLOCKED_CRITICAL_ACTION
     assert result.evaluation is not None
+    assert result.stop_reason == "policy_blocked_action"
     assert result.trace.events[-1].event_type == EventType.RUN_STOPPED
     assert result.trace.events[-1].payload["reason"] == "policy_blocked_action"
 
@@ -96,6 +98,7 @@ def test_runner_stops_when_max_steps_reached() -> None:
 
     assert result.status == RunStatus.STOPPED_MAX_STEPS
     assert result.evaluation is not None
+    assert result.stop_reason == "max_steps_exceeded"
     assert result.trace.events[-1].payload["reason"] == "max_steps_exceeded"
 
 
@@ -111,5 +114,6 @@ def test_runner_stops_on_adapter_error() -> None:
 
     assert result.status == RunStatus.STOPPED_ADAPTER_ERROR
     assert result.evaluation is not None
+    assert result.stop_reason == "adapter_error"
     assert result.trace.events[-1].event_type == EventType.RUN_STOPPED
     assert result.trace.events[-1].payload["reason"] == "adapter_error"

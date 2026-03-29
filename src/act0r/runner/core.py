@@ -65,7 +65,9 @@ class AgentRunner:
 
         final_text = None
 
-        def build_result(status: RunStatus, steps_executed: int) -> RunResult:
+        def build_result(
+            status: RunStatus, steps_executed: int, *, stop_reason: Optional[str] = None
+        ) -> RunResult:
             trace = recorder.to_trace()
             return RunResult(
                 run_id=active_run_id,
@@ -74,6 +76,7 @@ class AgentRunner:
                 steps_executed=steps_executed,
                 trace=trace,
                 evaluation=self.evaluator.evaluate(trace),
+                stop_reason=stop_reason,
                 final_response=final_text,
             )
 
@@ -94,7 +97,11 @@ class AgentRunner:
                         "error": str(exc),
                     },
                 )
-                return build_result(RunStatus.STOPPED_ADAPTER_ERROR, step)
+                return build_result(
+                    RunStatus.STOPPED_ADAPTER_ERROR,
+                    step,
+                    stop_reason="adapter_error",
+                )
 
             assistant_event = recorder.record(
                 EventType.ASSISTANT_RESPONSE,
@@ -126,7 +133,11 @@ class AgentRunner:
                         "outcome": assistant_blocking.outcome.value,
                     },
                 )
-                return build_result(RunStatus.STOPPED_BLOCKED_CRITICAL_ACTION, step + 1)
+                return build_result(
+                    RunStatus.STOPPED_BLOCKED_CRITICAL_ACTION,
+                    step + 1,
+                    stop_reason="policy_violation",
+                )
 
             for call in response.tool_calls:
                 tool_request_event = recorder.record(
@@ -147,7 +158,11 @@ class AgentRunner:
                             "error": str(exc),
                         },
                     )
-                    return build_result(RunStatus.STOPPED_ADAPTER_ERROR, step + 1)
+                    return build_result(
+                        RunStatus.STOPPED_ADAPTER_ERROR,
+                        step + 1,
+                        stop_reason="unknown_tool",
+                    )
 
                 pre_tool_policy = policy_engine.evaluate_before_tool(
                     tool_spec=tool.spec,
@@ -165,7 +180,11 @@ class AgentRunner:
                             "tool_name": call.name,
                         },
                     )
-                    return build_result(RunStatus.STOPPED_BLOCKED_CRITICAL_ACTION, step + 1)
+                    return build_result(
+                        RunStatus.STOPPED_BLOCKED_CRITICAL_ACTION,
+                        step + 1,
+                        stop_reason="policy_blocked_action",
+                    )
 
                 recorder.record(
                     EventType.TOOL_CALL_EXECUTED,
@@ -199,20 +218,32 @@ class AgentRunner:
                             "tool_name": result.tool_name,
                         },
                     )
-                    return build_result(RunStatus.STOPPED_BLOCKED_CRITICAL_ACTION, step + 1)
+                    return build_result(
+                        RunStatus.STOPPED_BLOCKED_CRITICAL_ACTION,
+                        step + 1,
+                        stop_reason="blocked_critical_action",
+                    )
 
             if response.is_final:
                 recorder.record(
                     EventType.RUN_COMPLETED,
                     {"reason": "adapter_signaled_completion"},
                 )
-                return build_result(RunStatus.COMPLETED, step + 1)
+                return build_result(
+                    RunStatus.COMPLETED,
+                    step + 1,
+                    stop_reason="adapter_signaled_completion",
+                )
 
         recorder.record(
             EventType.RUN_STOPPED,
             {"reason": "max_steps_exceeded", "max_steps": self.max_steps},
         )
-        return build_result(RunStatus.STOPPED_MAX_STEPS, self.max_steps)
+        return build_result(
+            RunStatus.STOPPED_MAX_STEPS,
+            self.max_steps,
+            stop_reason="max_steps_exceeded",
+        )
 
 
 def _serialize_tool_output(output: object) -> str:

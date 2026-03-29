@@ -115,3 +115,11 @@ def test_cli_parser_supports_ui_command() -> None:
     assert args.command == "ui"
     assert args.host == "127.0.0.1"
     assert args.port == 8090
+
+
+def test_cli_error_message_includes_command_context(capsys) -> None:
+    exit_code = main(["run", "--scenario", "scenarios/mvp/DOES_NOT_EXIST.yaml"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 1
+    assert "command=run" in captured.err

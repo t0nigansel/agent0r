@@ -25,4 +25,5 @@ class RunResult(BaseModel):
     steps_executed: int = Field(ge=0)
     trace: RunTrace
     evaluation: Optional[RunEvaluation] = None
+    stop_reason: Optional[str] = None
     final_response: Optional[str] = None

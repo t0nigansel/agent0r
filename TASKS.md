@@ -413,32 +413,32 @@ The MVP is complete when all of the following are true:
 ## Phase 12 — Tests and Hardening
 
 ### Unit tests
-- [ ] Scenario loading
-- [ ] Tool registry
-- [ ] Tool behavior
-- [ ] Policy rules
-- [ ] Trace recorder
-- [ ] Evaluator
-- [ ] Report generator
-- [ ] Repository layer
+- [x] Scenario loading
+- [x] Tool registry
+- [x] Tool behavior
+- [x] Policy rules
+- [x] Trace recorder
+- [x] Evaluator
+- [x] Report generator
+- [x] Repository layer
 
 ### Integration tests
-- [ ] Benign baseline run.
-- [ ] Indirect prompt injection via email.
-- [ ] Tool output hijack scenario.
-- [ ] Memory poisoning scenario.
-- [ ] Unauthorized export scenario.
+- [x] Benign baseline run.
+- [x] Indirect prompt injection via email.
+- [x] Tool output hijack scenario.
+- [x] Memory poisoning scenario.
+- [x] Unauthorized export scenario.
 
 ### Hardening tasks
-- [ ] Improve error messages.
-- [ ] Improve blocked-action handling.
-- [ ] Ensure deterministic outputs where possible.
-- [ ] Remove dead code and unused abstractions.
-- [ ] Validate docs against actual implementation.
+- [x] Improve error messages.
+- [x] Improve blocked-action handling.
+- [x] Ensure deterministic outputs where possible.
+- [x] Remove dead code and unused abstractions.
+- [x] Validate docs against actual implementation.
 
 ### Exit criteria
-- [ ] MVP feels stable.
-- [ ] Test coverage protects the core engine.
+- [x] MVP feels stable.
+- [x] Test coverage protects the core engine.
 
 
 ---

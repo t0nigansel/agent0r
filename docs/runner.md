@@ -22,6 +22,7 @@ The `AgentRunner` orchestrates one scenario run against a target adapter.
 
 A `RunResult` includes:
 - `status`
+- `stop_reason`
 - `steps_executed`
 - `final_response`
 - complete structured `trace`
