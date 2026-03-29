@@ -115,7 +115,8 @@ class UiDataService:
                     "status": row["status"],
                     "scenario_id": row["scenario_id"],
                     "scenario_title": row.get("scenario_title") or row["scenario_id"],
-                    "target": self.selected_target,
+                    "target": row.get("target") or "unknown",
+                    "model_label": row.get("model_label") or "unknown",
                     "timestamp": row["created_at"],
                     "verdict": row.get("verdict") or "pending",
                     "analysis_state": "ready" if row.get("verdict") else "pending",
@@ -134,6 +135,7 @@ class UiDataService:
             storage.close()
 
         scenario = bundle["scenario"]
+        context = bundle.get("context") or {}
         events = bundle["events"]
         tool_calls = [
             {
@@ -182,6 +184,75 @@ class UiDataService:
             if run_result.evaluation
             else None,
             "final_response": run_result.final_response,
+            "run_context": {
+                "target": context.get("target", "unknown"),
+                "model_label": context.get("model_label", "unknown"),
+            },
+        }
+
+    def differential_by_scenario(self, scenario_id: str) -> Dict[str, Any]:
+        runs = self.list_runs()
+        scenario_runs = [row for row in runs if row.get("scenario_id") == scenario_id]
+        if len(scenario_runs) < 2:
+            raise ValueError("Need at least two runs for scenario: {}".format(scenario_id))
+
+        latest_per_model: Dict[str, Dict[str, Any]] = {}
+        for row in scenario_runs:
+            model_label = str(row.get("model_label") or row.get("target") or "unknown")
+            if model_label not in latest_per_model:
+                latest_per_model[model_label] = row
+
+        if len(latest_per_model) < 2:
+            raise ValueError("Need runs from at least two models for scenario: {}".format(scenario_id))
+
+        model_rows: List[Dict[str, Any]] = []
+        for model_label, summary in sorted(latest_per_model.items(), key=lambda item: item[0]):
+            detail = self.run_detail(str(summary["run_id"]))
+            evaluation = detail.get("evaluation") or {}
+            rule_ids = sorted(
+                {
+                    str(violation.get("rule_id"))
+                    for violation in detail.get("violations", [])
+                    if violation.get("rule_id")
+                }
+            )
+
+            model_rows.append(
+                {
+                    "model_label": model_label,
+                    "target": summary.get("target") or "unknown",
+                    "run_id": summary["run_id"],
+                    "status": detail["status"],
+                    "verdict": evaluation.get("verdict"),
+                    "overall_score": _maybe_number(evaluation.get("scores", {}).get("overall_score")),
+                    "violation_count": int(evaluation.get("violation_count", len(rule_ids))),
+                    "rule_ids": rule_ids,
+                }
+            )
+
+        verdicts = sorted({str(item.get("verdict")) for item in model_rows if item.get("verdict")})
+        consensus_verdict = verdicts[0] if len(verdicts) == 1 else "mixed"
+
+        scores = [float(item["overall_score"]) for item in model_rows if item.get("overall_score") is not None]
+        if scores:
+            score_spread = max(scores) - min(scores)
+        else:
+            score_spread = None
+
+        all_rule_ids = sorted({rule for row in model_rows for rule in row["rule_ids"]})
+        divergent_rule_ids = [
+            rule
+            for rule in all_rule_ids
+            if not all(rule in row["rule_ids"] for row in model_rows)
+        ]
+
+        return {
+            "scenario_id": scenario_id,
+            "model_count": len(model_rows),
+            "consensus_verdict": consensus_verdict,
+            "score_spread": score_spread,
+            "models": model_rows,
+            "divergent_rule_ids": divergent_rule_ids,
         }
 
     def compare_runs(self, left_run_id: str, right_run_id: str) -> Dict[str, Any]:
@@ -285,7 +356,12 @@ class UiDataService:
 
         storage = SQLiteStorage(self.db_path)
         try:
-            storage.persist_full_run(loaded, run_result)
+            storage.persist_full_run(
+                loaded,
+                run_result,
+                target=selected_target,
+                model_label=selected_target,
+            )
         finally:
             storage.close()
 
@@ -382,6 +458,9 @@ def _build_handler(*, service: UiDataService, ui_dir: Path):
                     return self._send_json({"scenarios": service.list_scenarios()})
                 if path == "/api/runs":
                     return self._send_json({"runs": service.list_runs()})
+                if path.startswith("/api/differential/"):
+                    scenario_id = path.split("/")[-1]
+                    return self._send_json(service.differential_by_scenario(scenario_id))
                 if path == "/api/runs/compare":
                     query = parse_qs(parsed.query)
                     left_run_id = _query_value(query, "left")

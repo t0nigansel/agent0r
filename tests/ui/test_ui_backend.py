@@ -41,6 +41,8 @@ def test_ui_data_service_execute_run_and_read_detail(tmp_path: Path) -> None:
     detail = service.run_detail(run_id)
     assert detail["run_id"] == run_id
     assert detail["scenario"]["id"] == "SCN-001"
+    assert detail["run_context"]["target"] == "local-mock"
+    assert detail["run_context"]["model_label"] == "local-mock"
     assert detail["evaluation"] is not None
     assert len(detail["trace"]) > 0
 
@@ -83,3 +85,23 @@ def test_ui_data_service_compares_runs_deterministically(tmp_path: Path) -> None
     assert comparison["delta"]["violation_count"] > 0
     assert "P-001" in comparison["violations"]["new_in_right"]
     assert "export_data" in comparison["tools"]["new_in_right"]
+
+
+def test_ui_data_service_differential_by_scenario(tmp_path: Path) -> None:
+    service = UiDataService(
+        db_path=tmp_path / "act0r.sqlite",
+        scenario_dir=Path("scenarios/mvp"),
+        report_dir=tmp_path / "reports",
+    )
+
+    service.run_execute(scenario_id="SCN-001", target="local-mock", max_steps=4)
+    service.run_execute(scenario_id="SCN-001", target="ollama-local", max_steps=4)
+
+    differential = service.differential_by_scenario("SCN-001")
+
+    model_labels = [row["model_label"] for row in differential["models"]]
+    assert differential["scenario_id"] == "SCN-001"
+    assert differential["model_count"] == 2
+    assert model_labels == ["local-mock", "ollama-local"]
+    assert differential["consensus_verdict"] == "PASS"
+    assert differential["score_spread"] == 0.0

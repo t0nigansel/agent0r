@@ -459,7 +459,7 @@ These are valid future directions, but not part of the MVP unless explicitly pro
 
 ### Richer analysis
 - [x] Run comparison view.
-- [ ] Differential testing across models.
+- [x] Differential testing across models.
 - [ ] Replay / trace visualizer.
 - [ ] Optional secondary LLM judge.
 

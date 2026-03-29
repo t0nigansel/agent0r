@@ -46,11 +46,15 @@ const compareLeftRunSelect = document.getElementById("compare-left-run-select");
 const compareRightRunSelect = document.getElementById("compare-right-run-select");
 const compareRunsBtn = document.getElementById("compare-runs-btn");
 const compareContent = document.getElementById("compare-content");
+const differentialScenarioSelect = document.getElementById("differential-scenario-select");
+const runDifferentialBtn = document.getElementById("run-differential-btn");
+const differentialContent = document.getElementById("differential-content");
 
 refreshBtn.addEventListener("click", () => refreshAll());
 runSelectedScenarioBtn.addEventListener("click", () => executeSelectedScenario());
 loadReportBtn.addEventListener("click", () => loadSelectedReport());
 compareRunsBtn.addEventListener("click", () => compareSelectedRuns());
+runDifferentialBtn.addEventListener("click", () => runDifferentialForScenario());
 
 navItems.forEach((item) => {
   item.addEventListener("click", () => selectView(item.dataset.view));
@@ -178,6 +182,10 @@ async function refreshRuns() {
   compareRightRunSelect.innerHTML = runs
     .map((run) => `<option value="${escapeHtml(run.run_id)}">${escapeHtml(run.run_id)}</option>`)
     .join("");
+  const scenarioIds = Array.from(new Set(runs.map((run) => run.scenario_id))).sort();
+  differentialScenarioSelect.innerHTML = scenarioIds
+    .map((scenarioId) => `<option value="${escapeHtml(scenarioId)}">${escapeHtml(scenarioId)}</option>`)
+    .join("");
 
   if (runs.length > 0) {
     const firstRunId = runs[0].run_id;
@@ -188,14 +196,19 @@ async function refreshRuns() {
     reportRunSelect.value = state.selectedRunId;
     compareLeftRunSelect.value = firstRunId;
     compareRightRunSelect.value = secondRunId;
+    if (scenarioIds.length > 0) {
+      differentialScenarioSelect.value = scenarioIds[0];
+    }
     downloadReportLink.href = `/api/reports/${encodeURIComponent(state.selectedRunId)}/download`;
   } else {
     state.selectedRunId = null;
     reportRunSelect.innerHTML = "";
     compareLeftRunSelect.innerHTML = "";
     compareRightRunSelect.innerHTML = "";
+    differentialScenarioSelect.innerHTML = "";
     downloadReportLink.href = "#";
     compareContent.innerHTML = "<p class='muted'>Select two runs and click Compare Runs.</p>";
+    differentialContent.innerHTML = "<p class='muted'>Select a scenario and click Run Differential.</p>";
     clearRunDetail();
   }
 
@@ -421,6 +434,67 @@ function renderComparison(comparison) {
     <p><strong>Resolved in right:</strong> ${escapeHtml((violations.resolved_in_right || []).join(", ") || "none")}</p>
     <p><strong>New tools in right:</strong> ${escapeHtml((tools.new_in_right || []).join(", ") || "none")}</p>
     <p><strong>Missing tools in right:</strong> ${escapeHtml((tools.missing_in_right || []).join(", ") || "none")}</p>
+  `;
+}
+
+async function runDifferentialForScenario() {
+  const scenarioId = differentialScenarioSelect.value;
+  if (!scenarioId) {
+    differentialContent.innerHTML = "<p class='muted'>Select a scenario to run differential testing.</p>";
+    return;
+  }
+
+  const data = await getJson(`/api/differential/${encodeURIComponent(scenarioId)}`);
+  differentialContent.innerHTML = renderDifferential(data);
+}
+
+function renderDifferential(data) {
+  const models = data.models || [];
+  const divergentRules = data.divergent_rule_ids || [];
+
+  if (!models.length) {
+    return "<p class='muted'>No differential data available.</p>";
+  }
+
+  return `
+    <h3>Differential Summary</h3>
+    <p><strong>Scenario:</strong> ${escapeHtml(data.scenario_id || "")}</p>
+    <p><strong>Models Compared:</strong> ${escapeHtml(String(data.model_count || 0))}</p>
+    <p><strong>Consensus Verdict:</strong> ${statusBadge(data.consensus_verdict)}</p>
+    <p><strong>Score Spread:</strong> ${escapeHtml(String(data.score_spread ?? "n/a"))}</p>
+    <p><strong>Divergent Rules:</strong> ${escapeHtml(divergentRules.join(", ") || "none")}</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Target</th>
+          <th>Run ID</th>
+          <th>Status</th>
+          <th>Verdict</th>
+          <th>Score</th>
+          <th>Violations</th>
+          <th>Rule IDs</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${models
+          .map(
+            (row) => `
+          <tr>
+            <td>${escapeHtml(row.model_label || "")}</td>
+            <td>${escapeHtml(row.target || "")}</td>
+            <td>${escapeHtml(row.run_id || "")}</td>
+            <td>${statusBadge(row.status)}</td>
+            <td>${statusBadge(row.verdict)}</td>
+            <td>${escapeHtml(String(row.overall_score ?? "n/a"))}</td>
+            <td>${escapeHtml(String(row.violation_count ?? 0))}</td>
+            <td>${escapeHtml((row.rule_ids || []).join(", ") || "none")}</td>
+          </tr>
+        `
+          )
+          .join("")}
+      </tbody>
+    </table>
   `;
 }
 

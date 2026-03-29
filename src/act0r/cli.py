@@ -47,12 +47,32 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument("--report-dir", default="reports", help="Report output directory")
     run_parser.add_argument("--max-steps", type=int, default=8, help="Max runner steps")
     run_parser.add_argument("--run-id", default=None, help="Optional explicit run id")
+    run_parser.add_argument(
+        "--target-label",
+        default="deterministic-cli",
+        help="Target label stored with run context",
+    )
+    run_parser.add_argument(
+        "--model-label",
+        default=None,
+        help="Model label stored with run context (defaults to target label)",
+    )
 
     run_all_parser = subparsers.add_parser("run-all", help="Run all scenarios in a directory")
     run_all_parser.add_argument("--scenario-dir", default="scenarios/mvp", help="Scenario directory")
     run_all_parser.add_argument("--db", default="data/act0r.sqlite", help="SQLite database path")
     run_all_parser.add_argument("--report-dir", default="reports", help="Report output directory")
     run_all_parser.add_argument("--max-steps", type=int, default=8, help="Max runner steps")
+    run_all_parser.add_argument(
+        "--target-label",
+        default="deterministic-cli",
+        help="Target label stored with run context",
+    )
+    run_all_parser.add_argument(
+        "--model-label",
+        default=None,
+        help="Model label stored with run context (defaults to target label)",
+    )
 
     report_parser = subparsers.add_parser("report", help="Regenerate report from stored run")
     report_parser.add_argument("--run-id", required=True, help="Run id")
@@ -116,7 +136,13 @@ def _cmd_run(args) -> int:
 
     storage = SQLiteStorage(Path(args.db))
     try:
-        storage.persist_full_run(loaded, run_result)
+        model_label = args.model_label or args.target_label
+        storage.persist_full_run(
+            loaded,
+            run_result,
+            target=args.target_label,
+            model_label=model_label,
+        )
     finally:
         storage.close()
 
@@ -144,6 +170,7 @@ def _cmd_run_all(args) -> int:
     storage = SQLiteStorage(Path(args.db))
 
     completed = 0
+    model_label = args.model_label or args.target_label
     try:
         for loaded in loaded_scenarios:
             run_id = "cli-{}-{}".format(loaded.scenario.id.lower(), uuid4().hex[:6])
@@ -153,7 +180,12 @@ def _cmd_run_all(args) -> int:
                 max_steps=args.max_steps,
             )
             run_result = runner.run(loaded, run_id=run_id)
-            storage.persist_full_run(loaded, run_result)
+            storage.persist_full_run(
+                loaded,
+                run_result,
+                target=args.target_label,
+                model_label=model_label,
+            )
             report_path = MarkdownReportGenerator().generate(
                 run_result,
                 loaded,

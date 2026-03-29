@@ -114,9 +114,12 @@ class RunRepository:
                 runs.steps_executed,
                 runs.verdict,
                 runs.overall_score,
-                runs.created_at
+                runs.created_at,
+                run_contexts.target,
+                run_contexts.model_label
             FROM runs
             LEFT JOIN scenarios ON scenarios.id = runs.scenario_id
+            LEFT JOIN run_contexts ON run_contexts.run_id = runs.run_id
             ORDER BY runs.created_at DESC, runs.run_id DESC
             """
         ).fetchall()
@@ -236,6 +239,44 @@ class ScoreRepository:
     def get(self, run_id: str) -> Optional[Dict]:
         row = self.connection.execute(
             "SELECT * FROM scores WHERE run_id = ?",
+            (run_id,),
+        ).fetchone()
+        return dict(row) if row else None
+
+
+class RunContextRepository:
+    def __init__(self, connection: sqlite3.Connection) -> None:
+        self.connection = connection
+
+    def save(
+        self,
+        *,
+        run_id: str,
+        target: str,
+        model_label: str,
+        metadata: Optional[Dict] = None,
+    ) -> None:
+        self.connection.execute(
+            """
+            INSERT INTO run_contexts (run_id, target, model_label, metadata_json, created_at)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(run_id) DO UPDATE SET
+                target=excluded.target,
+                model_label=excluded.model_label,
+                metadata_json=excluded.metadata_json
+            """,
+            (
+                run_id,
+                target,
+                model_label,
+                json.dumps(metadata or {}, sort_keys=True),
+                _utc_now_iso(),
+            ),
+        )
+
+    def get(self, run_id: str) -> Optional[Dict]:
+        row = self.connection.execute(
+            "SELECT * FROM run_contexts WHERE run_id = ?",
             (run_id,),
         ).fetchone()
         return dict(row) if row else None

@@ -55,3 +55,12 @@ CREATE TABLE IF NOT EXISTS scores (
     notes_json TEXT NOT NULL,
     FOREIGN KEY (run_id) REFERENCES runs(run_id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS run_contexts (
+    run_id TEXT PRIMARY KEY,
+    target TEXT NOT NULL,
+    model_label TEXT NOT NULL,
+    metadata_json TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (run_id) REFERENCES runs(run_id) ON DELETE CASCADE
+);

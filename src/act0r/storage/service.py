@@ -15,6 +15,7 @@ from act0r.trace import EventType, RunTrace, TraceEvent
 from .db import initialize_database
 from .repositories import (
     EventRepository,
+    RunContextRepository,
     RunRepository,
     ScenarioRepository,
     ScoreRepository,
@@ -27,6 +28,7 @@ class SQLiteStorage:
         self.connection = initialize_database(db_path)
         self.scenarios = ScenarioRepository(self.connection)
         self.runs = RunRepository(self.connection)
+        self.run_contexts = RunContextRepository(self.connection)
         self.events = EventRepository(self.connection)
         self.violations = ViolationRepository(self.connection)
         self.scores = ScoreRepository(self.connection)
@@ -34,9 +36,22 @@ class SQLiteStorage:
     def close(self) -> None:
         self.connection.close()
 
-    def persist_full_run(self, loaded_scenario: LoadedScenario, run_result: RunResult) -> None:
+    def persist_full_run(
+        self,
+        loaded_scenario: LoadedScenario,
+        run_result: RunResult,
+        *,
+        target: str = "unknown",
+        model_label: str = "unknown",
+    ) -> None:
         self.scenarios.save(loaded_scenario)
         self.runs.save(run_result)
+        self.run_contexts.save(
+            run_id=run_result.run_id,
+            target=target,
+            model_label=model_label,
+            metadata={},
+        )
         self.events.save_trace(run_result.run_id, run_result.trace)
         self.violations.save_from_trace(run_result.run_id, run_result.trace)
         if run_result.evaluation:
@@ -52,6 +67,7 @@ class SQLiteStorage:
         event_records = self.events.list_by_run(run_id)
         violation_records = self.violations.list_by_run(run_id)
         score_record = self.scores.get(run_id)
+        context_record = self.run_contexts.get(run_id)
 
         return {
             "run": run_record,
@@ -59,6 +75,7 @@ class SQLiteStorage:
             "events": event_records,
             "violations": violation_records,
             "scores": score_record,
+            "context": context_record,
         }
 
     def reconstruct_run_result(self, run_id: str) -> RunResult:

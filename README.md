@@ -47,6 +47,7 @@ python3 -m pytest
 - SQLite persistence is implemented in `act0r.storage`.
 - Operator CLI is implemented in `act0r.cli`.
 - UI operational app + local API server are in `ui/` and `act0r.ui_backend`.
+- UI analysis includes run comparison and per-scenario model differentials.
 - Multi-agent workflow safety checks are in `act0r.multi_agent`.
 - Scenario format docs are in `docs/scenarios/schema.md`.
 - Tool layer docs are in `docs/tools.md`.
