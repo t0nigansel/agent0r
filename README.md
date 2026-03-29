@@ -38,8 +38,12 @@ python3 -m pytest
 - Scenario schema/loading is implemented in `act0r.scenarios`.
 - Tool abstraction and fake tools are implemented in `act0r.tools`.
 - Trace events and recorder are implemented in `act0r.trace`.
+- Target backend adapters are implemented in `act0r.adapters`.
+- Run orchestration is implemented in `act0r.runner`.
 - Scenario format docs are in `docs/scenarios/schema.md`.
 - Tool layer docs are in `docs/tools.md`.
 - Trace docs are in `docs/trace.md`.
+- Adapter docs are in `docs/adapters.md`.
+- Runner docs are in `docs/runner.md`.
 
 The MVP remains intentionally narrow: fake or sandboxed behaviors only, deterministic checks first, and a UI style aligned with `prompt0r`.

@@ -187,30 +187,30 @@ The MVP is complete when all of the following are true:
 ## Phase 4 — Agent Runner
 
 ### Core runner
-- [ ] Implement runner skeleton.
-- [ ] Load scenario, tools, and fixtures into runtime.
-- [ ] Provide system prompt and user task to the target.
-- [ ] Execute a bounded step loop.
-- [ ] Support safe stop conditions:
+- [x] Implement runner skeleton.
+- [x] Load scenario, tools, and fixtures into runtime.
+- [x] Provide system prompt and user task to the target.
+- [x] Execute a bounded step loop.
+- [x] Support safe stop conditions:
   - max step count
   - completion
   - blocked critical action
   - unrecoverable adapter error
-- [ ] Record runtime events through the trace recorder.
+- [x] Record runtime events through the trace recorder.
 
 ### Adapter interface
-- [ ] Define a narrow adapter interface for target backends.
-- [ ] Normalize assistant messages and tool calls.
-- [ ] Add adapter-level tests with mocked responses.
+- [x] Define a narrow adapter interface for target backends.
+- [x] Normalize assistant messages and tool calls.
+- [x] Add adapter-level tests with mocked responses.
 
 ### Initial adapters
-- [ ] Implement `ollama` adapter.
-- [ ] Implement generic `openai-compatible` adapter.
+- [x] Implement `ollama` adapter.
+- [x] Implement generic `openai-compatible` adapter.
 
 ### Exit criteria
-- [ ] A scenario can be run end-to-end against a target adapter.
-- [ ] Tool calls are intercepted and recorded.
-- [ ] Runs stop safely and predictably.
+- [x] A scenario can be run end-to-end against a target adapter.
+- [x] Tool calls are intercepted and recorded.
+- [x] Runs stop safely and predictably.
 
 
 ---
