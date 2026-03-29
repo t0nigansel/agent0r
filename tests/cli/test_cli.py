@@ -41,6 +41,31 @@ def test_cli_run_command_persists_and_reports(tmp_path: Path, capsys) -> None:
     assert (report_dir / "cli-test-run.md").exists()
 
 
+def test_cli_run_command_supports_optional_secondary_judge(tmp_path: Path, capsys) -> None:
+    db_path = tmp_path / "act0r.sqlite"
+    report_dir = tmp_path / "reports"
+
+    exit_code = main(
+        [
+            "run",
+            "--scenario",
+            "scenarios/mvp/SCN-001_benign_email_summary.yaml",
+            "--db",
+            str(db_path),
+            "--report-dir",
+            str(report_dir),
+            "--run-id",
+            "cli-secondary-run",
+            "--secondary-judge",
+            "deterministic-llm-stub",
+        ]
+    )
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "secondary_judge=deterministic-llm-stub" in captured.out
+
+
 
 def test_cli_report_regeneration(tmp_path: Path, capsys) -> None:
     db_path = tmp_path / "act0r.sqlite"

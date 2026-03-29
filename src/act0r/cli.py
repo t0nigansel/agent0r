@@ -6,6 +6,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from act0r.adapters import AdapterRequest, AdapterResponse, AdapterToolCall, AgentAdapter
+from act0r.evaluation import build_secondary_judge
 from act0r.reporting import MarkdownReportGenerator
 from act0r.runner import AgentRunner
 from act0r.scenarios import load_scenario, load_scenarios_from_directory
@@ -57,6 +58,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Model label stored with run context (defaults to target label)",
     )
+    run_parser.add_argument(
+        "--secondary-judge",
+        choices=["disabled", "deterministic-llm-stub"],
+        default="disabled",
+        help="Optional secondary judge mode",
+    )
 
     run_all_parser = subparsers.add_parser("run-all", help="Run all scenarios in a directory")
     run_all_parser.add_argument("--scenario-dir", default="scenarios/mvp", help="Scenario directory")
@@ -72,6 +79,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--model-label",
         default=None,
         help="Model label stored with run context (defaults to target label)",
+    )
+    run_all_parser.add_argument(
+        "--secondary-judge",
+        choices=["disabled", "deterministic-llm-stub"],
+        default="disabled",
+        help="Optional secondary judge mode",
     )
 
     report_parser = subparsers.add_parser("report", help="Regenerate report from stored run")
@@ -164,6 +177,12 @@ def _cmd_run(args) -> int:
         loaded,
         Path(args.report_dir),
     )
+    report_markdown = report_path.read_text(encoding="utf-8")
+    secondary_judge = build_secondary_judge(args.secondary_judge)
+    secondary_assessment = secondary_judge.evaluate(
+        primary_evaluation=run_result.evaluation,
+        report_markdown=report_markdown,
+    )
 
     print(
         "run_id={} scenario={} status={} verdict={} score={} report={}".format(
@@ -175,6 +194,14 @@ def _cmd_run(args) -> int:
             report_path,
         )
     )
+    if secondary_assessment.enabled:
+        print(
+            "secondary_judge={} verdict={} confidence={}".format(
+                secondary_assessment.provider,
+                secondary_assessment.verdict.value,
+                secondary_assessment.confidence,
+            )
+        )
     return 0
 
 
@@ -184,6 +211,7 @@ def _cmd_run_all(args) -> int:
 
     completed = 0
     model_label = args.model_label or args.target_label
+    secondary_judge = build_secondary_judge(args.secondary_judge)
     try:
         for loaded in loaded_scenarios:
             run_id = "cli-{}-{}".format(loaded.scenario.id.lower(), uuid4().hex[:6])
@@ -204,6 +232,11 @@ def _cmd_run_all(args) -> int:
                 loaded,
                 Path(args.report_dir),
             )
+            report_markdown = report_path.read_text(encoding="utf-8")
+            secondary_assessment = secondary_judge.evaluate(
+                primary_evaluation=run_result.evaluation,
+                report_markdown=report_markdown,
+            )
             print(
                 "run_id={} scenario={} status={} verdict={} report={}".format(
                     run_result.run_id,
@@ -213,6 +246,15 @@ def _cmd_run_all(args) -> int:
                     report_path,
                 )
             )
+            if secondary_assessment.enabled:
+                print(
+                    "secondary_judge={} run_id={} verdict={} confidence={}".format(
+                        secondary_assessment.provider,
+                        run_result.run_id,
+                        secondary_assessment.verdict.value,
+                        secondary_assessment.confidence,
+                    )
+                )
             completed += 1
     finally:
         storage.close()

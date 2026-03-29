@@ -461,7 +461,7 @@ These are valid future directions, but not part of the MVP unless explicitly pro
 - [x] Run comparison view.
 - [x] Differential testing across models.
 - [x] Replay / trace visualizer.
-- [ ] Optional secondary LLM judge.
+- [x] Optional secondary LLM judge.
 
 ### Output formats
 - [x] PDF export.

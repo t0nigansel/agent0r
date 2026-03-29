@@ -43,6 +43,7 @@ python3 -m pytest
 - Run orchestration is implemented in `act0r.runner`.
 - Deterministic policy checks are implemented in `act0r.policy`.
 - Deterministic scoring/verdicts are implemented in `act0r.evaluation`.
+- Optional secondary judge hooks are available in `act0r.evaluation`.
 - Markdown run reporting is implemented in `act0r.reporting`.
 - JSON/PDF/bundle artifact export is implemented in `act0r.reporting`.
 - SQLite persistence is implemented in `act0r.storage`.
