@@ -46,6 +46,7 @@ python3 -m pytest
 - SQLite persistence is implemented in `act0r.storage`.
 - Operator CLI is implemented in `act0r.cli`.
 - UI operational app + local API server are in `ui/` and `act0r.ui_backend`.
+- Multi-agent workflow safety checks are in `act0r.multi_agent`.
 - Scenario format docs are in `docs/scenarios/schema.md`.
 - Tool layer docs are in `docs/tools.md`.
 - Trace docs are in `docs/trace.md`.
@@ -57,5 +58,6 @@ python3 -m pytest
 - Storage docs are in `docs/storage.md`.
 - CLI docs are in `docs/cli.md`.
 - UI run instructions are in `ui/README.md`.
+- Multi-agent workflow checks are documented in `docs/multi_agent.md`.
 
 The MVP remains intentionally narrow: fake or sandboxed behaviors only, deterministic checks first, and a UI style aligned with `prompt0r`.

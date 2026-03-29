@@ -448,9 +448,9 @@ The MVP is complete when all of the following are true:
 These are valid future directions, but not part of the MVP unless explicitly promoted.
 
 ### Multi-agent and workflow expansion
-- [ ] Multi-agent handoff testing.
-- [ ] Parent/sub-agent privilege propagation checks.
-- [ ] Cross-agent policy context checks.
+- [x] Multi-agent handoff testing.
+- [x] Parent/sub-agent privilege propagation checks.
+- [x] Cross-agent policy context checks.
 
 ### Broader attack surfaces
 - [ ] OCR / image text injection scenarios.
