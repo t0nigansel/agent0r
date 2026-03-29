@@ -357,23 +357,23 @@ The MVP is complete when all of the following are true:
 ## Phase 10 — UI Foundation
 
 ### Shared visual language
-- [ ] Create `UI_GUIDE.md` if missing.
-- [ ] Define the dark operator-style design rules.
-- [ ] Mirror `prompt0r` layout patterns where appropriate.
+- [x] Create `UI_GUIDE.md` if missing.
+- [x] Define the dark operator-style design rules.
+- [x] Mirror `prompt0r` layout patterns where appropriate.
 
 ### Base layout
-- [ ] Add left sidebar navigation.
-- [ ] Add top-level views for:
+- [x] Add left sidebar navigation.
+- [x] Add top-level views for:
   - Targets
   - Scenarios
   - Runs
   - Reports / Analysis
-- [ ] Use compact tables and practical action buttons.
-- [ ] Keep the visual style technical and minimal.
+- [x] Use compact tables and practical action buttons.
+- [x] Keep the visual style technical and minimal.
 
 ### Exit criteria
-- [ ] The UI visually feels like a sibling of `prompt0r`.
-- [ ] Navigation structure is stable.
+- [x] The UI visually feels like a sibling of `prompt0r`.
+- [x] Navigation structure is stable.
 
 
 ---

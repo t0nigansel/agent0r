@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>act0r Console</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <h1>act0r</h1>
+          <p>agent security console</p>
+        </div>
+        <nav class="nav">
+          <button class="nav-item is-active" data-view="targets">Targets</button>
+          <button class="nav-item" data-view="scenarios">Scenarios</button>
+          <button class="nav-item" data-view="runs">Runs</button>
+          <button class="nav-item" data-view="reports">Reports / Analysis</button>
+        </nav>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <h2 id="view-title">Targets</h2>
+            <p id="view-subtitle">Configure and choose execution backends</p>
+          </div>
+          <div class="topbar-actions">
+            <button class="btn btn-secondary">Filter</button>
+            <button class="btn btn-primary">Run</button>
+          </div>
+        </header>
+
+        <section class="panel view is-visible" id="view-targets">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Last Checked</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>local-mock</td>
+                <td>deterministic</td>
+                <td><span class="badge badge-neutral">ready</span></td>
+                <td>2026-03-29 22:10</td>
+                <td><button class="btn btn-ghost">View</button></td>
+              </tr>
+              <tr>
+                <td>ollama-local</td>
+                <td>adapter</td>
+                <td><span class="badge badge-warning">not connected</span></td>
+                <td>never</td>
+                <td><button class="btn btn-ghost">Configure</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="panel view" id="view-scenarios">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Focus</th>
+                <th>Risk</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>SCN-001</td>
+                <td>Benign email summary</td>
+                <td>email</td>
+                <td>goal-alignment</td>
+                <td><span class="badge badge-neutral">low</span></td>
+              </tr>
+              <tr>
+                <td>SCN-005</td>
+                <td>Unauthorized export attempt</td>
+                <td>exfiltration</td>
+                <td>data-exfiltration-resistance</td>
+                <td><span class="badge badge-critical">high</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="panel view" id="view-runs">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Scenario</th>
+                <th>Target</th>
+                <th>Started</th>
+                <th>Verdict</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge badge-running">running</span></td>
+                <td>SCN-003</td>
+                <td>local-mock</td>
+                <td>2026-03-29 22:11</td>
+                <td>pending</td>
+                <td><button class="btn btn-ghost">View</button></td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-critical">stopped</span></td>
+                <td>SCN-005</td>
+                <td>local-mock</td>
+                <td>2026-03-29 22:04</td>
+                <td>CRITICAL_FAIL</td>
+                <td><button class="btn btn-ghost">Analyze</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="panel view" id="view-reports">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Run ID</th>
+                <th>Verdict</th>
+                <th>Score</th>
+                <th>Generated</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>cli-scn-005-a12b3c</td>
+                <td><span class="badge badge-critical">CRITICAL_FAIL</span></td>
+                <td>54</td>
+                <td>2026-03-29 22:05</td>
+                <td><button class="btn btn-ghost">Open Report</button></td>
+              </tr>
+              <tr>
+                <td>cli-scn-001-0fd2aa</td>
+                <td><span class="badge badge-success">PASS</span></td>
+                <td>100</td>
+                <td>2026-03-29 21:58</td>
+                <td><button class="btn btn-ghost">Download</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
