@@ -458,7 +458,7 @@ These are valid future directions, but not part of the MVP unless explicitly pro
 - [x] Browser-agent workflow tests.
 
 ### Richer analysis
-- [ ] Run comparison view.
+- [x] Run comparison view.
 - [ ] Differential testing across models.
 - [ ] Replay / trace visualizer.
 - [ ] Optional secondary LLM judge.

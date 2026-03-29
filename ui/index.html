@@ -127,8 +127,22 @@
             <button class="btn btn-secondary" id="load-report-btn">Open Report</button>
             <a class="btn btn-ghost" id="download-report-link" href="#" download>Download Report</a>
           </div>
+          <div class="panel-header">
+            <label class="inline-field">
+              Compare Left
+              <select id="compare-left-run-select"></select>
+            </label>
+            <label class="inline-field">
+              Compare Right
+              <select id="compare-right-run-select"></select>
+            </label>
+            <button class="btn btn-secondary" id="compare-runs-btn">Compare Runs</button>
+          </div>
           <article class="markdown" id="report-content">
             <p class="muted">Select a run and click Open Report.</p>
+          </article>
+          <article class="markdown" id="compare-content">
+            <p class="muted">Select two runs and click Compare Runs.</p>
           </article>
         </section>
       </main>

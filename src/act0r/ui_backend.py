@@ -7,7 +7,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 from act0r.adapters import AdapterRequest, AdapterResponse, AdapterToolCall, AgentAdapter
 from act0r.reporting import MarkdownReportGenerator
@@ -184,6 +184,85 @@ class UiDataService:
             "final_response": run_result.final_response,
         }
 
+    def compare_runs(self, left_run_id: str, right_run_id: str) -> Dict[str, Any]:
+        left = self.run_detail(left_run_id)
+        right = self.run_detail(right_run_id)
+
+        left_eval = left.get("evaluation") or {}
+        right_eval = right.get("evaluation") or {}
+
+        left_tools = sorted(
+            {
+                str(item.get("tool"))
+                for item in left.get("tool_calls", [])
+                if item.get("tool")
+            }
+        )
+        right_tools = sorted(
+            {
+                str(item.get("tool"))
+                for item in right.get("tool_calls", [])
+                if item.get("tool")
+            }
+        )
+
+        left_rules = sorted(
+            {
+                str(item.get("rule_id"))
+                for item in left.get("violations", [])
+                if item.get("rule_id")
+            }
+        )
+        right_rules = sorted(
+            {
+                str(item.get("rule_id"))
+                for item in right.get("violations", [])
+                if item.get("rule_id")
+            }
+        )
+
+        left_score = _maybe_number(left_eval.get("scores", {}).get("overall_score"))
+        right_score = _maybe_number(right_eval.get("scores", {}).get("overall_score"))
+
+        left_violation_count = int(left_eval.get("violation_count", len(left_rules)))
+        right_violation_count = int(right_eval.get("violation_count", len(right_rules)))
+
+        return {
+            "left": {
+                "run_id": left_run_id,
+                "scenario_id": left["scenario"]["id"],
+                "status": left["status"],
+                "verdict": left_eval.get("verdict"),
+                "overall_score": left_score,
+                "violation_count": left_violation_count,
+                "tools": left_tools,
+            },
+            "right": {
+                "run_id": right_run_id,
+                "scenario_id": right["scenario"]["id"],
+                "status": right["status"],
+                "verdict": right_eval.get("verdict"),
+                "overall_score": right_score,
+                "violation_count": right_violation_count,
+                "tools": right_tools,
+            },
+            "delta": {
+                "overall_score": _safe_delta(right_score, left_score),
+                "violation_count": right_violation_count - left_violation_count,
+                "tool_count": len(right_tools) - len(left_tools),
+            },
+            "violations": {
+                "left_rule_ids": left_rules,
+                "right_rule_ids": right_rules,
+                "new_in_right": sorted(set(right_rules) - set(left_rules)),
+                "resolved_in_right": sorted(set(left_rules) - set(right_rules)),
+            },
+            "tools": {
+                "new_in_right": sorted(set(right_tools) - set(left_tools)),
+                "missing_in_right": sorted(set(left_tools) - set(right_tools)),
+            },
+        }
+
     def run_execute(
         self,
         *,
@@ -303,6 +382,14 @@ def _build_handler(*, service: UiDataService, ui_dir: Path):
                     return self._send_json({"scenarios": service.list_scenarios()})
                 if path == "/api/runs":
                     return self._send_json({"runs": service.list_runs()})
+                if path == "/api/runs/compare":
+                    query = parse_qs(parsed.query)
+                    left_run_id = _query_value(query, "left")
+                    right_run_id = _query_value(query, "right")
+                    if not left_run_id or not right_run_id:
+                        raise ValueError("Both query params are required: left, right")
+                    comparison = service.compare_runs(left_run_id, right_run_id)
+                    return self._send_json(comparison)
                 if path.startswith("/api/runs/"):
                     run_id = path.split("/")[-1]
                     return self._send_json(service.run_detail(run_id))
@@ -380,3 +467,27 @@ def _build_handler(*, service: UiDataService, ui_dir: Path):
             self.wfile.write(data)
 
     return UiHandler
+
+
+def _query_value(values: Dict[str, List[str]], key: str) -> str:
+    found = values.get(key, [])
+    if not found:
+        return ""
+    return str(found[0])
+
+
+def _safe_delta(right: Optional[float], left: Optional[float]) -> Optional[float]:
+    if right is None or left is None:
+        return None
+    return right - left
+
+
+def _maybe_number(value: Any) -> Optional[float]:
+    if value is None:
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None

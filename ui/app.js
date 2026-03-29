@@ -42,10 +42,15 @@ const reportRunSelect = document.getElementById("report-run-select");
 const loadReportBtn = document.getElementById("load-report-btn");
 const downloadReportLink = document.getElementById("download-report-link");
 const reportContent = document.getElementById("report-content");
+const compareLeftRunSelect = document.getElementById("compare-left-run-select");
+const compareRightRunSelect = document.getElementById("compare-right-run-select");
+const compareRunsBtn = document.getElementById("compare-runs-btn");
+const compareContent = document.getElementById("compare-content");
 
 refreshBtn.addEventListener("click", () => refreshAll());
 runSelectedScenarioBtn.addEventListener("click", () => executeSelectedScenario());
 loadReportBtn.addEventListener("click", () => loadSelectedReport());
+compareRunsBtn.addEventListener("click", () => compareSelectedRuns());
 
 navItems.forEach((item) => {
   item.addEventListener("click", () => selectView(item.dataset.view));
@@ -167,18 +172,30 @@ async function refreshRuns() {
   reportRunSelect.innerHTML = runs
     .map((run) => `<option value="${escapeHtml(run.run_id)}">${escapeHtml(run.run_id)}</option>`)
     .join("");
+  compareLeftRunSelect.innerHTML = runs
+    .map((run) => `<option value="${escapeHtml(run.run_id)}">${escapeHtml(run.run_id)}</option>`)
+    .join("");
+  compareRightRunSelect.innerHTML = runs
+    .map((run) => `<option value="${escapeHtml(run.run_id)}">${escapeHtml(run.run_id)}</option>`)
+    .join("");
 
   if (runs.length > 0) {
     const firstRunId = runs[0].run_id;
+    const secondRunId = (runs[1] || runs[0]).run_id;
     if (!state.selectedRunId || !runs.some((item) => item.run_id === state.selectedRunId)) {
       state.selectedRunId = firstRunId;
     }
     reportRunSelect.value = state.selectedRunId;
+    compareLeftRunSelect.value = firstRunId;
+    compareRightRunSelect.value = secondRunId;
     downloadReportLink.href = `/api/reports/${encodeURIComponent(state.selectedRunId)}/download`;
   } else {
     state.selectedRunId = null;
     reportRunSelect.innerHTML = "";
+    compareLeftRunSelect.innerHTML = "";
+    compareRightRunSelect.innerHTML = "";
     downloadReportLink.href = "#";
+    compareContent.innerHTML = "<p class='muted'>Select two runs and click Compare Runs.</p>";
     clearRunDetail();
   }
 
@@ -326,6 +343,85 @@ async function loadReport(runId) {
   const markdown = await fetchText(`/api/reports/${encodeURIComponent(runId)}`);
   reportContent.innerHTML = renderMarkdown(markdown);
   downloadReportLink.href = `/api/reports/${encodeURIComponent(runId)}/download`;
+}
+
+async function compareSelectedRuns() {
+  const leftRunId = compareLeftRunSelect.value;
+  const rightRunId = compareRightRunSelect.value;
+
+  if (!leftRunId || !rightRunId) {
+    compareContent.innerHTML = "<p class='muted'>Select two runs to compare.</p>";
+    return;
+  }
+
+  const comparison = await getJson(
+    `/api/runs/compare?left=${encodeURIComponent(leftRunId)}&right=${encodeURIComponent(rightRunId)}`
+  );
+  compareContent.innerHTML = renderComparison(comparison);
+}
+
+function renderComparison(comparison) {
+  const left = comparison.left || {};
+  const right = comparison.right || {};
+  const delta = comparison.delta || {};
+  const violations = comparison.violations || {};
+  const tools = comparison.tools || {};
+
+  return `
+    <h3>Run Comparison</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Left</th>
+          <th>Right</th>
+          <th>Delta (right-left)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Run ID</td>
+          <td>${escapeHtml(left.run_id || "")}</td>
+          <td>${escapeHtml(right.run_id || "")}</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Scenario</td>
+          <td>${escapeHtml(left.scenario_id || "")}</td>
+          <td>${escapeHtml(right.scenario_id || "")}</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Status</td>
+          <td>${statusBadge(left.status)}</td>
+          <td>${statusBadge(right.status)}</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Verdict</td>
+          <td>${statusBadge(left.verdict)}</td>
+          <td>${statusBadge(right.verdict)}</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Overall score</td>
+          <td>${escapeHtml(String(left.overall_score ?? "n/a"))}</td>
+          <td>${escapeHtml(String(right.overall_score ?? "n/a"))}</td>
+          <td>${escapeHtml(String(delta.overall_score ?? "n/a"))}</td>
+        </tr>
+        <tr>
+          <td>Violation count</td>
+          <td>${escapeHtml(String(left.violation_count ?? 0))}</td>
+          <td>${escapeHtml(String(right.violation_count ?? 0))}</td>
+          <td>${escapeHtml(String(delta.violation_count ?? 0))}</td>
+        </tr>
+      </tbody>
+    </table>
+    <p><strong>New violations in right:</strong> ${escapeHtml((violations.new_in_right || []).join(", ") || "none")}</p>
+    <p><strong>Resolved in right:</strong> ${escapeHtml((violations.resolved_in_right || []).join(", ") || "none")}</p>
+    <p><strong>New tools in right:</strong> ${escapeHtml((tools.new_in_right || []).join(", ") || "none")}</p>
+    <p><strong>Missing tools in right:</strong> ${escapeHtml((tools.missing_in_right || []).join(", ") || "none")}</p>
+  `;
 }
 
 function statusBadge(value) {

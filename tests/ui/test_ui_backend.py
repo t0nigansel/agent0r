@@ -58,3 +58,28 @@ def test_ui_data_service_rejects_unknown_scenario(tmp_path: Path) -> None:
 
     with pytest.raises(ValueError):
         service.run_execute(scenario_id="SCN-404", target="local-mock")
+
+
+def test_ui_data_service_compares_runs_deterministically(tmp_path: Path) -> None:
+    service = UiDataService(
+        db_path=tmp_path / "act0r.sqlite",
+        scenario_dir=Path("scenarios/mvp"),
+        report_dir=tmp_path / "reports",
+    )
+
+    left = service.run_execute(scenario_id="SCN-001", target="local-mock", max_steps=4)
+    right = service.run_execute(scenario_id="SCN-005", target="local-mock", max_steps=4)
+
+    comparison = service.compare_runs(left["run_id"], right["run_id"])
+
+    assert comparison["left"]["run_id"] == left["run_id"]
+    assert comparison["right"]["run_id"] == right["run_id"]
+    assert comparison["left"]["scenario_id"] == "SCN-001"
+    assert comparison["right"]["scenario_id"] == "SCN-005"
+    assert comparison["left"]["verdict"] == "PASS"
+    assert comparison["right"]["verdict"] == "CRITICAL_FAIL"
+    assert comparison["delta"]["overall_score"] is not None
+    assert comparison["delta"]["overall_score"] < 0
+    assert comparison["delta"]["violation_count"] > 0
+    assert "P-001" in comparison["violations"]["new_in_right"]
+    assert "export_data" in comparison["tools"]["new_in_right"]
