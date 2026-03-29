@@ -82,6 +82,49 @@ def test_cli_report_regeneration(tmp_path: Path, capsys) -> None:
     assert report_path.exists()
 
 
+def test_cli_export_command_generates_requested_artifacts(tmp_path: Path, capsys) -> None:
+    db_path = tmp_path / "act0r.sqlite"
+    report_dir = tmp_path / "reports"
+
+    run_exit = main(
+        [
+            "run",
+            "--scenario",
+            "scenarios/mvp/SCN-001_benign_email_summary.yaml",
+            "--db",
+            str(db_path),
+            "--report-dir",
+            str(report_dir),
+            "--run-id",
+            "cli-export-run",
+        ]
+    )
+    assert run_exit == 0
+
+    export_exit = main(
+        [
+            "export",
+            "--run-id",
+            "cli-export-run",
+            "--db",
+            str(db_path),
+            "--output-dir",
+            str(report_dir),
+            "--format",
+            "all",
+        ]
+    )
+    captured = capsys.readouterr()
+
+    assert export_exit == 0
+    assert "markdown=" in captured.out
+    assert "json=" in captured.out
+    assert "pdf=" in captured.out
+    assert (report_dir / "cli-export-run.md").exists()
+    assert (report_dir / "cli-export-run.json").exists()
+    assert (report_dir / "cli-export-run.pdf").exists()
+
+
 
 def test_cli_run_all(tmp_path: Path, capsys) -> None:
     db_path = tmp_path / "act0r.sqlite"

@@ -128,3 +128,25 @@ def test_ui_data_service_trace_replay_navigation(tmp_path: Path) -> None:
 
     negative = service.trace_replay(run_id, index=-10)
     assert negative["index"] == 0
+
+
+def test_ui_data_service_exports_json_pdf_and_bundle(tmp_path: Path) -> None:
+    service = UiDataService(
+        db_path=tmp_path / "act0r.sqlite",
+        scenario_dir=Path("scenarios/mvp"),
+        report_dir=tmp_path / "reports",
+    )
+
+    executed = service.run_execute(scenario_id="SCN-001", target="local-mock", max_steps=4)
+    run_id = executed["run_id"]
+
+    json_path = service.export_artifact(run_id, "json")
+    pdf_path = service.export_artifact(run_id, "pdf")
+    bundle_path = service.export_artifact(run_id, "bundle")
+
+    assert json_path.exists()
+    assert json_path.name == "{}.json".format(run_id)
+    assert pdf_path.exists()
+    assert pdf_path.name == "{}.pdf".format(run_id)
+    assert bundle_path.exists()
+    assert bundle_path.name == "{}.bundle.zip".format(run_id)

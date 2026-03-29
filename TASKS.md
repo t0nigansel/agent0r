@@ -464,9 +464,9 @@ These are valid future directions, but not part of the MVP unless explicitly pro
 - [ ] Optional secondary LLM judge.
 
 ### Output formats
-- [ ] PDF export.
-- [ ] JSON export.
-- [ ] Shareable result bundles.
+- [x] PDF export.
+- [x] JSON export.
+- [x] Shareable result bundles.
 
 
 ---

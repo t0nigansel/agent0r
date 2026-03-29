@@ -47,6 +47,9 @@ const replayCurrentEvent = document.getElementById("replay-current-event");
 const reportRunSelect = document.getElementById("report-run-select");
 const loadReportBtn = document.getElementById("load-report-btn");
 const downloadReportLink = document.getElementById("download-report-link");
+const downloadJsonLink = document.getElementById("download-json-link");
+const downloadPdfLink = document.getElementById("download-pdf-link");
+const downloadBundleLink = document.getElementById("download-bundle-link");
 const reportContent = document.getElementById("report-content");
 const compareLeftRunSelect = document.getElementById("compare-left-run-select");
 const compareRightRunSelect = document.getElementById("compare-right-run-select");
@@ -77,7 +80,14 @@ targetSelect.addEventListener("change", async () => {
 
 reportRunSelect.addEventListener("change", () => {
   const runId = reportRunSelect.value;
-  downloadReportLink.href = runId ? `/api/reports/${runId}/download` : "#";
+  if (!runId) {
+    downloadReportLink.href = "#";
+    downloadJsonLink.href = "#";
+    downloadPdfLink.href = "#";
+    downloadBundleLink.href = "#";
+    return;
+  }
+  updateArtifactLinks(runId);
 });
 
 let replayTimer = null;
@@ -210,7 +220,7 @@ async function refreshRuns() {
     if (scenarioIds.length > 0) {
       differentialScenarioSelect.value = scenarioIds[0];
     }
-    downloadReportLink.href = `/api/reports/${encodeURIComponent(state.selectedRunId)}/download`;
+    updateArtifactLinks(state.selectedRunId);
   } else {
     state.selectedRunId = null;
     reportRunSelect.innerHTML = "";
@@ -218,6 +228,9 @@ async function refreshRuns() {
     compareRightRunSelect.innerHTML = "";
     differentialScenarioSelect.innerHTML = "";
     downloadReportLink.href = "#";
+    downloadJsonLink.href = "#";
+    downloadPdfLink.href = "#";
+    downloadBundleLink.href = "#";
     compareContent.innerHTML = "<p class='muted'>Select two runs and click Compare Runs.</p>";
     differentialContent.innerHTML = "<p class='muted'>Select a scenario and click Run Differential.</p>";
     clearRunDetail();
@@ -376,7 +389,7 @@ async function loadSelectedReport() {
 async function loadReport(runId) {
   const markdown = await fetchText(`/api/reports/${encodeURIComponent(runId)}`);
   reportContent.innerHTML = renderMarkdown(markdown);
-  downloadReportLink.href = `/api/reports/${encodeURIComponent(runId)}/download`;
+  updateArtifactLinks(runId);
 }
 
 async function compareSelectedRuns() {
@@ -517,6 +530,14 @@ function renderDifferential(data) {
       </tbody>
     </table>
   `;
+}
+
+function updateArtifactLinks(runId) {
+  const encodedRunId = encodeURIComponent(runId);
+  downloadReportLink.href = `/api/reports/${encodedRunId}/download`;
+  downloadJsonLink.href = `/api/exports/${encodedRunId}.json`;
+  downloadPdfLink.href = `/api/exports/${encodedRunId}.pdf`;
+  downloadBundleLink.href = `/api/exports/${encodedRunId}.zip`;
 }
 
 async function loadReplay(runId, index) {

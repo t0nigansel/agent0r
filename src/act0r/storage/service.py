@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Dict, Optional
 
 from act0r.evaluation import DeterministicEvaluator, EvaluationScores, RunEvaluation, VerdictClass
-from act0r.reporting import MarkdownReportGenerator
+from act0r.reporting import MarkdownReportGenerator, RunArtifactExporter
 from act0r.runner import RunResult, RunStatus
 from act0r.scenarios import load_scenario
 from act0r.scenarios.models import LoadedScenario
@@ -126,6 +126,67 @@ class SQLiteStorage:
 
         generator = MarkdownReportGenerator()
         return generator.generate(run_result, loaded_scenario, output_dir)
+
+    def export_artifacts(
+        self,
+        run_id: str,
+        output_dir: Path,
+        *,
+        include_markdown: bool = True,
+        include_json: bool = False,
+        include_pdf: bool = False,
+        include_bundle: bool = False,
+    ) -> Dict[str, Path]:
+        bundle = self.load_run_bundle(run_id)
+        scenario_record = bundle["scenario"]
+        if scenario_record is None:
+            raise ValueError("Scenario record missing for run: {}".format(run_id))
+
+        loaded_scenario = load_scenario(scenario_record["source_path"])
+        run_result = self.reconstruct_run_result(run_id)
+        exporter = RunArtifactExporter()
+
+        artifacts: Dict[str, Path] = {}
+        markdown_text: Optional[str] = None
+
+        if include_markdown or include_pdf or include_bundle:
+            markdown_path = MarkdownReportGenerator().generate(
+                run_result,
+                loaded_scenario,
+                output_dir,
+            )
+            markdown_text = markdown_path.read_text(encoding="utf-8")
+            if include_markdown:
+                artifacts["markdown"] = markdown_path
+
+        if include_json or include_bundle:
+            json_path = exporter.generate_json(run_result, loaded_scenario, output_dir)
+            if include_json:
+                artifacts["json"] = json_path
+
+        if include_pdf or include_bundle:
+            pdf_path = exporter.generate_pdf(
+                run_result,
+                loaded_scenario,
+                output_dir,
+                markdown_text=markdown_text,
+            )
+            if include_pdf:
+                artifacts["pdf"] = pdf_path
+
+        if include_bundle:
+            bundle_inputs: Dict[str, Path] = {}
+            bundle_inputs["markdown"] = output_dir / "{}.md".format(run_result.run_id)
+            bundle_inputs["json"] = output_dir / "{}.json".format(run_result.run_id)
+            bundle_inputs["pdf"] = output_dir / "{}.pdf".format(run_result.run_id)
+            bundle_path = exporter.generate_bundle(
+                run_id=run_result.run_id,
+                output_dir=output_dir,
+                artifact_paths=bundle_inputs,
+            )
+            artifacts["bundle"] = bundle_path
+
+        return artifacts
 
 
 def _evaluation_from_score_record(score_record: Optional[Dict], violation_count: int) -> Optional[RunEvaluation]:

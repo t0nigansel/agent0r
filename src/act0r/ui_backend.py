@@ -422,6 +422,44 @@ class UiDataService:
             storage.close()
         return regenerated.read_text(encoding="utf-8")
 
+    def export_artifact(self, run_id: str, file_format: str) -> Path:
+        storage = SQLiteStorage(self.db_path)
+        try:
+            if file_format == "json":
+                artifacts = storage.export_artifacts(
+                    run_id,
+                    self.report_dir,
+                    include_markdown=False,
+                    include_json=True,
+                    include_pdf=False,
+                    include_bundle=False,
+                )
+                return artifacts["json"]
+            if file_format == "pdf":
+                artifacts = storage.export_artifacts(
+                    run_id,
+                    self.report_dir,
+                    include_markdown=False,
+                    include_json=False,
+                    include_pdf=True,
+                    include_bundle=False,
+                )
+                return artifacts["pdf"]
+            if file_format == "bundle":
+                artifacts = storage.export_artifacts(
+                    run_id,
+                    self.report_dir,
+                    include_markdown=True,
+                    include_json=True,
+                    include_pdf=True,
+                    include_bundle=True,
+                )
+                return artifacts["bundle"]
+        finally:
+            storage.close()
+
+        raise ValueError("Unsupported export format: {}".format(file_format))
+
     def _load_scenario_by_id(self, scenario_id: str):
         loaded = load_scenarios_from_directory(self.scenario_dir)
         for item in loaded:
@@ -513,6 +551,32 @@ def _build_handler(*, service: UiDataService, ui_dir: Path):
                     run_id = path.split("/")[-1]
                     markdown = service.report_markdown(run_id)
                     return self._send_markdown(markdown, run_id=run_id, download=False)
+                if path.startswith("/api/exports/"):
+                    filename = path.split("/")[-1]
+                    if filename.endswith(".json"):
+                        run_id = filename[:-5]
+                        artifact = service.export_artifact(run_id, "json")
+                        return self._send_file(
+                            artifact,
+                            content_type="application/json; charset=utf-8",
+                            download_name="{}.json".format(run_id),
+                        )
+                    if filename.endswith(".pdf"):
+                        run_id = filename[:-4]
+                        artifact = service.export_artifact(run_id, "pdf")
+                        return self._send_file(
+                            artifact,
+                            content_type="application/pdf",
+                            download_name="{}.pdf".format(run_id),
+                        )
+                    if filename.endswith(".zip"):
+                        run_id = filename[:-4]
+                        artifact = service.export_artifact(run_id, "bundle")
+                        return self._send_file(
+                            artifact,
+                            content_type="application/zip",
+                            download_name="{}.bundle.zip".format(run_id),
+                        )
             except Exception as exc:
                 return self._send_json(
                     {"error": str(exc)},
@@ -574,6 +638,18 @@ def _build_handler(*, service: UiDataService, ui_dir: Path):
                     "Content-Disposition",
                     'attachment; filename="{}.md"'.format(run_id),
                 )
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
+
+        def _send_file(self, path: Path, *, content_type: str, download_name: str):
+            data = path.read_bytes()
+            self.send_response(HTTPStatus.OK)
+            self.send_header("Content-Type", content_type)
+            self.send_header(
+                "Content-Disposition",
+                'attachment; filename="{}"'.format(download_name),
+            )
             self.send_header("Content-Length", str(len(data)))
             self.end_headers()
             self.wfile.write(data)

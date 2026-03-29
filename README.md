@@ -44,6 +44,7 @@ python3 -m pytest
 - Deterministic policy checks are implemented in `act0r.policy`.
 - Deterministic scoring/verdicts are implemented in `act0r.evaluation`.
 - Markdown run reporting is implemented in `act0r.reporting`.
+- JSON/PDF/bundle artifact export is implemented in `act0r.reporting`.
 - SQLite persistence is implemented in `act0r.storage`.
 - Operator CLI is implemented in `act0r.cli`.
 - UI operational app + local API server are in `ui/` and `act0r.ui_backend`.

@@ -1,6 +1,13 @@
-# Markdown Reporting (MVP)
+# Reporting And Exports
 
-`act0r` generates one Markdown report file per run.
+`act0r` generates deterministic operator artifacts per run.
+
+Primary outputs:
+
+- Markdown report: `<output_dir>/<run_id>.md`
+- JSON export: `<output_dir>/<run_id>.json`
+- PDF export: `<output_dir>/<run_id>.pdf`
+- Shareable bundle: `<output_dir>/<run_id>.bundle.zip`
 
 ## Required sections
 
@@ -18,4 +25,5 @@
 
 - deterministic section order
 - concise tables/lists for operator readability
-- output path pattern: `<output_dir>/<run_id>.md`
+- deterministic ZIP entry ordering for bundles
+- local-only generation (no remote conversion services)

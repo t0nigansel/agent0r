@@ -79,6 +79,17 @@ def build_parser() -> argparse.ArgumentParser:
     report_parser.add_argument("--db", default="data/act0r.sqlite", help="SQLite database path")
     report_parser.add_argument("--output-dir", default="reports", help="Report output directory")
 
+    export_parser = subparsers.add_parser("export", help="Export run artifacts")
+    export_parser.add_argument("--run-id", required=True, help="Run id")
+    export_parser.add_argument("--db", default="data/act0r.sqlite", help="SQLite database path")
+    export_parser.add_argument("--output-dir", default="reports", help="Artifact output directory")
+    export_parser.add_argument(
+        "--format",
+        choices=["markdown", "json", "pdf", "bundle", "all"],
+        default="all",
+        help="Artifact format to export",
+    )
+
     ui_parser = subparsers.add_parser("ui", help="Start local UI server")
     ui_parser.add_argument("--host", default="127.0.0.1", help="Bind host")
     ui_parser.add_argument("--port", type=int, default=8080, help="Bind port")
@@ -102,6 +113,8 @@ def main(argv=None) -> int:
             return _cmd_run_all(args)
         if args.command == "report":
             return _cmd_report(args)
+        if args.command == "export":
+            return _cmd_export(args)
         if args.command == "ui":
             return _cmd_ui(args)
     except Exception as exc:
@@ -216,6 +229,30 @@ def _cmd_report(args) -> int:
         storage.close()
 
     print("report={}".format(report_path))
+    return 0
+
+
+def _cmd_export(args) -> int:
+    include_markdown = args.format in {"markdown", "all", "bundle"}
+    include_json = args.format in {"json", "all", "bundle"}
+    include_pdf = args.format in {"pdf", "all", "bundle"}
+    include_bundle = args.format == "bundle"
+
+    storage = SQLiteStorage(Path(args.db))
+    try:
+        artifacts = storage.export_artifacts(
+            args.run_id,
+            Path(args.output_dir),
+            include_markdown=include_markdown,
+            include_json=include_json,
+            include_pdf=include_pdf,
+            include_bundle=include_bundle,
+        )
+    finally:
+        storage.close()
+
+    for name in sorted(artifacts):
+        print("{}={}".format(name, artifacts[name]))
     return 0
 
 

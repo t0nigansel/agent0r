@@ -19,4 +19,4 @@ Then open:
 - Targets: list/select execution targets
 - Scenarios: list attack scenarios and run selected scenario
 - Runs: inspect history, status/verdict, trace, tool calls, violations, and event replay
-- Reports / Analysis: render Markdown report, compare two runs, run per-scenario model differentials, and download export
+- Reports / Analysis: render Markdown report, compare two runs, run per-scenario model differentials, and download Markdown/JSON/PDF/bundle exports
