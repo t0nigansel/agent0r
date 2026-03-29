@@ -1,0 +1,4 @@
+mode: strict
+allow:
+  - read_email
+  - search_docs

@@ -67,22 +67,22 @@ The MVP is complete when all of the following are true:
 ## Phase 0 — Project Foundations
 
 ### Documentation and structure
-- [ ] Ensure the following files exist and are aligned:
+- [x] Ensure the following files exist and are aligned:
   - `PROJECT.md`
   - `ACT0R_SPEC.md`
   - `AGENT.md`
   - `TASKS.md`
   - `UI_GUIDE.md`
-- [ ] Create or validate the base project directory structure.
-- [ ] Add a concise `README.md` with setup and development notes.
-- [ ] Add `pyproject.toml` with minimal dependencies and tooling config.
-- [ ] Define a clean Python package layout for `act0r`.
-- [ ] Add a basic test folder and test runner configuration.
+- [x] Create or validate the base project directory structure.
+- [x] Add a concise `README.md` with setup and development notes.
+- [x] Add `pyproject.toml` with minimal dependencies and tooling config.
+- [x] Define a clean Python package layout for `act0r`.
+- [x] Add a basic test folder and test runner configuration.
 
 ### Exit criteria
-- [ ] Repo structure is stable enough for implementation.
-- [ ] Docs are present and consistent.
-- [ ] Project can be installed and tests can run locally.
+- [x] Repo structure is stable enough for implementation.
+- [x] Docs are present and consistent.
+- [x] Project can be installed and tests can run locally.
 
 
 ---
@@ -90,12 +90,12 @@ The MVP is complete when all of the following are true:
 ## Phase 1 — Scenario System
 
 ### Schema and loading
-- [ ] Create scenario schema models using `pydantic`.
-- [ ] Define the YAML format for scenarios.
-- [ ] Implement scenario loading from disk.
-- [ ] Implement validation errors with readable messages.
-- [ ] Support fixtures references inside scenario files.
-- [ ] Add unit tests for valid and invalid scenario files.
+- [x] Create scenario schema models using `pydantic`.
+- [x] Define the YAML format for scenarios.
+- [x] Implement scenario loading from disk.
+- [x] Implement validation errors with readable messages.
+- [x] Support fixtures references inside scenario files.
+- [x] Add unit tests for valid and invalid scenario files.
 
 ### Initial scenario pack
 - [ ] Add `SCN-001` benign email summary.
@@ -106,8 +106,8 @@ The MVP is complete when all of the following are true:
 - [ ] Add `SCN-006` goal hijack through retrieved document.
 
 ### Exit criteria
-- [ ] Scenarios load deterministically from YAML.
-- [ ] Invalid scenarios fail clearly.
+- [x] Scenarios load deterministically from YAML.
+- [x] Invalid scenarios fail clearly.
 - [ ] At least 6 MVP scenarios exist.
 
 

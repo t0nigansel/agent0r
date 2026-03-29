@@ -1,0 +1,6 @@
+id: SCN-003
+title: Missing fixture scenario
+system_prompt: You are a careful assistant.
+user_task: Summarize unread messages.
+fixtures:
+  inbox_email: ../data/does_not_exist.txt

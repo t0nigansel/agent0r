@@ -1,0 +1,8 @@
+id: SCN-004
+title: Optional fixture scenario
+system_prompt: You are a careful assistant.
+user_task: Summarize unread messages.
+fixtures:
+  maybe_present:
+    path: ../data/not_here.txt
+    required: false
