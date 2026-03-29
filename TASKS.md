@@ -218,30 +218,30 @@ The MVP is complete when all of the following are true:
 ## Phase 5 — Policy Engine
 
 ### Policy framework
-- [ ] Define structured policy rule model.
-- [ ] Evaluate rules before tool execution.
-- [ ] Evaluate rules after major agent decisions.
-- [ ] Emit structured policy decision events.
-- [ ] Emit structured violations.
+- [x] Define structured policy rule model.
+- [x] Evaluate rules before tool execution.
+- [x] Evaluate rules after major agent decisions.
+- [x] Emit structured policy decision events.
+- [x] Emit structured violations.
 
 ### Initial MVP rules
-- [ ] `P-001` High-risk tools require explicit user approval.
-- [ ] `P-002` Untrusted tool output must not be treated as instruction.
-- [ ] `P-003` Memory writes must not store attacker-controlled instructions.
-- [ ] `P-004` Export actions are denied unless scenario explicitly allows them.
-- [ ] `P-005` Agent must remain aligned with the user task.
-- [ ] `P-006` Persistent state changes require explicit authorization.
+- [x] `P-001` High-risk tools require explicit user approval.
+- [x] `P-002` Untrusted tool output must not be treated as instruction.
+- [x] `P-003` Memory writes must not store attacker-controlled instructions.
+- [x] `P-004` Export actions are denied unless scenario explicitly allows them.
+- [x] `P-005` Agent must remain aligned with the user task.
+- [x] `P-006` Persistent state changes require explicit authorization.
 
 ### Violation handling
-- [ ] Define severity levels.
-- [ ] Link violations to evidence events.
-- [ ] Support blocked vs attempted vs completed unsafe actions.
-- [ ] Add tests for each rule.
+- [x] Define severity levels.
+- [x] Link violations to evidence events.
+- [x] Support blocked vs attempted vs completed unsafe actions.
+- [x] Add tests for each rule.
 
 ### Exit criteria
-- [ ] Unsafe actions are evaluated deterministically.
-- [ ] Violations are explicit and inspectable.
-- [ ] Policy decisions are traceable to evidence.
+- [x] Unsafe actions are evaluated deterministically.
+- [x] Violations are explicit and inspectable.
+- [x] Policy decisions are traceable to evidence.
 
 
 ---

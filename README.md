@@ -40,10 +40,12 @@ python3 -m pytest
 - Trace events and recorder are implemented in `act0r.trace`.
 - Target backend adapters are implemented in `act0r.adapters`.
 - Run orchestration is implemented in `act0r.runner`.
+- Deterministic policy checks are implemented in `act0r.policy`.
 - Scenario format docs are in `docs/scenarios/schema.md`.
 - Tool layer docs are in `docs/tools.md`.
 - Trace docs are in `docs/trace.md`.
 - Adapter docs are in `docs/adapters.md`.
 - Runner docs are in `docs/runner.md`.
+- Policy docs are in `docs/policy.md`.
 
 The MVP remains intentionally narrow: fake or sandboxed behaviors only, deterministic checks first, and a UI style aligned with `prompt0r`.

@@ -53,6 +53,7 @@ def test_runner_completes_and_records_tool_events() -> None:
     event_types = [event.event_type for event in result.trace.events]
 
     assert result.status == RunStatus.COMPLETED
+    assert EventType.POLICY_DECISION in event_types
     assert EventType.TOOL_CALL_REQUESTED in event_types
     assert EventType.TOOL_CALL_EXECUTED in event_types
     assert EventType.TOOL_RESULT in event_types
@@ -78,7 +79,7 @@ def test_runner_stops_on_blocked_high_risk_tool_action() -> None:
 
     assert result.status == RunStatus.STOPPED_BLOCKED_CRITICAL_ACTION
     assert result.trace.events[-1].event_type == EventType.RUN_STOPPED
-    assert result.trace.events[-1].payload["reason"] == "blocked_critical_action"
+    assert result.trace.events[-1].payload["reason"] == "policy_blocked_action"
 
 
 def test_runner_stops_when_max_steps_reached() -> None:
